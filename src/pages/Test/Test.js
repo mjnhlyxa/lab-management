@@ -1,80 +1,42 @@
 import React, { useState, memo } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
-import { Text } from 'rebass';
+
+import i18n from 'i18next';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import forOwn from 'lodash/forOwn';
 import forEach from 'lodash/forEach';
-import DataTable from 'react-data-table-component';
 
 import dataJ from 'pages/Test/data.json';
 import columnsJ from 'pages/Test/columns.json';
 import { login } from 'actions/actions';
-import Button from 'components/Button';
-
-const Input = styled.input`
-    max-width: 50px;
-`;
-
-const EditBtn = styled(Button)``;
-
-const ColmnName = ({ value }) => {
-    return <div>{value}</div>;
-};
-
-export const Table = ({ structure, value = {} }) => {
-    const [editRow, setEditRow] = useState(-1);
-
-    const { selection, fields } = structure;
-    const { data = [] } = value;
-    let initColumns = [];
-    if (selection) {
-        initColumns = [
-            ...initColumns,
-            {
-                name: <ColmnName />,
-                sortable: false,
-                cell: ({ checked = false }) => {
-                    return <Input type="checkbox" checked={checked} onChange={() => {}} />;
-                },
-            },
-            {
-                name: 'Action',
-                sortable: false,
-                cell: ({ id, checked = false }) => {
-                    return <EditBtn onClick={() => setEditRow(id)}>Edit</EditBtn>;
-                },
-            },
-        ];
-    }
-
-    const columns = fields.reduce((acc, curr) => {
-        const { show, name, caption, sortable } = curr;
-        if (show) {
-            acc.push({
-                name: <ColmnName value={caption} />,
-                sortable,
-                cell: (row) => {
-                    const value = row[name];
-                    const { id } = row;
-                    return id === editRow ? (
-                        <Input type="text" value={value} />
-                    ) : (
-                        <Text>{value}</Text>
-                    );
-                },
-            });
-        }
-        return acc;
-    }, initColumns);
-
-    return <DataTable columns={columns} data={data} />;
-};
+import { LANGUAGE_SUPPORTED } from 'utils/constants';
+import Table from 'components/Table';
 
 // <Table >
+const A = () => {
+    const { t, i18n } = useTranslation();
+    const onClick = () => {
+        // login({user: 1, password: 'gacoi'}
+        if (i18n.language === LANGUAGE_SUPPORTED.VIE) {
+            i18n.changeLanguage(LANGUAGE_SUPPORTED.ENG);
+        } else {
+            i18n.changeLanguage(LANGUAGE_SUPPORTED.VIE);
+        }
+    };
+    return <button onClick={onClick}>{i18n.t('test.test1')}</button>;
+};
 
 export const Test = ({ login }) => {
-    return <Table structure={columnsJ} value={dataJ} />;
+    // const { t, i18n } = useTranslation();
+    // return (
+    //     <>
+    //         <A />
+    //         <p>{i18n.t('test.test1')}</p>
+    //         <button onClick={() => login({user: 1, password: 'gacoi'})}>sdas</button>
+    //     </>
+    // )
+    return <Table structure={columnsJ} data={dataJ.data} />;
 };
 
 const mapStateToProps = ({

@@ -14,7 +14,7 @@
       "url": "https://github.com/orgs/coreui/people"
     }
   ],
-  "homepage": ".",
+  "homepage": "/",
   "copyright": "Copyright 2017-2020 creativeLabs Łukasz Holeczek",
   "license": "MIT",
   "private": true,
@@ -43,8 +43,10 @@
     "react": "^16.13.1",
     "react-app-polyfill": "^1.0.6",
     "react-data-table-component": "^6.9.3",
+    "react-datepicker": "^3.1.3",
     "react-dom": "^16.13.1",
     "react-i18next": "^11.7.0",
+    "react-icons": "^3.10.0",
     "react-redux": "7.2.0",
     "react-router-dom": "^5.2.0",
     "react-router-redux": "^4.0.8",

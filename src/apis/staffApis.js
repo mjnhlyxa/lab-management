@@ -11,14 +11,12 @@ export const toFromData = (obj) => {
     return formData;
 };
 
-// export const login = (data) =>
-//   from(axios.post("http://myslim.nlsoft.vn/api/login", toFromData(data)));
 export const login = (data) =>
-    ajax({
-        url: 'https://jsonplaceholder.typicode.com/posts',
-        method: 'POST',
-        body: toFromData(data),
-    });
+    from(axios.post("http://myslim.nlsoft.vn/api/login", toFromData(data), {
+        headers: {
+            'content-type': 'multipart/form-data',
+        }
+    }));
 
 export const getStaff = ({ response, saId }) =>
     Observable.fromPromise(
