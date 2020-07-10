@@ -245,7 +245,19 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
         console.log(event);
     };
 
-    return <DataTable columns={columns} data={data} sortServer onSort={onSort} />;
+    return (
+        <DataTable
+            columns={columns}
+            data={data}
+            sortServer
+            onSort={onSort}
+            pagination
+            paginationServer
+            paginationPerPage={5}
+            paginationRowsPerPageOptions={[5, 10]}
+            paginationTotalRows={20}
+        />
+    );
 };
 
 export default memo(Table);

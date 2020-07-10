@@ -39,13 +39,6 @@ const TheHeader = () => {
         const val = [false, 'responsive'].includes(sidebarShow) ? true : 'responsive';
         dispatch({ type: 'set', sidebarShow: val });
     };
-    const change = () => {
-        if (i18n.language === LANGUAGE_SUPPORTED.VIE) {
-            i18n.changeLanguage(LANGUAGE_SUPPORTED.ENG);
-        } else {
-            i18n.changeLanguage(LANGUAGE_SUPPORTED.VIE);
-        }
-    };
     return (
         <CHeader withSubheader>
             <CToggler inHeader className="ml-md-3 d-lg-none" onClick={toggleSidebarMobile} />
@@ -65,8 +58,6 @@ const TheHeader = () => {
                     <CHeaderNavLink>Settings</CHeaderNavLink>
                 </CHeaderNavItem>
             </CHeaderNav>
-            <button onClick={change}>dadasad</button>
-            {t('test.test1')}
             <CHeaderNav className="px-3">
                 <TheHeaderDropdownNotif />
                 <TheHeaderDropdownTasks />

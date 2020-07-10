@@ -1,5 +1,17 @@
 {
-    "test": {
-        "test1": "home"
+    "sideBar": {
+        "menu": {
+            "hrManagement": "HR Management",
+            "positionMgnt": "Position Management",
+            "customerMgnt": "Customer Management"
+        }
+    },
+    "settings": {
+        "account": "Account",
+        "update": "Updates",
+        "msg": "Messages",
+        "cmts": "Comments",
+        "profile": "Profile",
+        "setting": "Settings"
     }
 }

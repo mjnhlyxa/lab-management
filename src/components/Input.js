@@ -11,4 +11,4 @@ const Input = styled.input`
     padding: 0.1rem 0.5rem;
 `;
 
-export default styled(Input)(space, color, layout, borderRadius);;
+export default styled(Input)(space, color, layout, borderRadius);

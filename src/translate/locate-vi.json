@@ -1,5 +1,17 @@
 {
-    "test": {
-        "test1": "nha`"
+    "sideBar": {
+        "menu": {
+            "hrManagement": "Quản lý nhân sự",
+            "positionMgnt": "Quản lý chức vụ",
+            "customerMgnt": "Quản lý khách hàng"
+        }
+    },
+    "settings": {
+        "account": "Tài khoản",
+        "update": "Cập nhật",
+        "msg": "Tin nhắn",
+        "cmts": "Bình luận",
+        "profile": "Chi tiết",
+        "setting": "Cài đặt"
     }
 }
