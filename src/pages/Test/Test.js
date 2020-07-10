@@ -11,7 +11,7 @@ import dataJ from 'pages/Test/data.json';
 import columnsJ from 'pages/Test/columns.json';
 import { login } from 'actions/actions';
 import { LANGUAGE_SUPPORTED } from 'utils/constants';
-import Table from 'components/Table';
+import Table from 'components/table/Table';
 
 // <Table >
 const A = () => {
