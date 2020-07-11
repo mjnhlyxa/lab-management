@@ -3,24 +3,24 @@ import { routerMiddleware } from "react-router-redux";
 import { createBrowserHistory } from "history";
 import { createEpicMiddleware } from "redux-observable";
 import "rxjs";
-import rootReducer from "./reducers/rootReducer";
+import rootReducer from "reducers/rootReducer";
 import rootEpic from "./epics/rootEpic";
 import apis from "./apis/index";
 
 export const history = createBrowserHistory();
 
-const initialState = {
-  sidebarShow: "responsive",
-};
+// const initialState = {
+//   sidebarShow: "responsive",
+// };
 
-const changeState = (state = initialState, { type, ...rest }) => {
-  switch (type) {
-    case "set":
-      return { ...state, ...rest };
-    default:
-      return state;
-  }
-};
+// const changeState = (state = initialState, { type, ...rest }) => {
+//   switch (type) {
+//     case "set":
+//       return { ...state, ...rest };
+//     default:
+//       return state;
+//   }
+// };
 
 const epicMiddleware = createEpicMiddleware({
   dependencies: { ...apis },
@@ -34,8 +34,8 @@ const middleware = [routerMiddleware(history), epicMiddleware];
 //     ...enhancers,
 // );
 const store = createStore(
-  changeState,
-  initialState,
+  rootReducer,
+  // initialState,
   applyMiddleware(...middleware)
 );
 epicMiddleware.run(rootEpic);

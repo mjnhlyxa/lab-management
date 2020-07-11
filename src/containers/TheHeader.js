@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -18,26 +19,22 @@ import CIcon from '@coreui/icons-react';
 import routes from '../routes';
 import { LANGUAGE_SUPPORTED } from 'utils/constants';
 
-import {
-    TheHeaderDropdown,
-    TheHeaderDropdownMssg,
-    TheHeaderDropdownNotif,
-    TheHeaderDropdownTasks,
-} from './index';
+import { TheHeaderDropdown, TheHeaderDropdownMssg, TheHeaderDropdownNotif, TheHeaderDropdownTasks } from './index';
+import { setSideBar } from 'actions/actions';
 
 const TheHeader = () => {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
-    const sidebarShow = useSelector((state) => state.sidebarShow);
+    const sidebarShow = useSelector((state) => state.sidebar.sidebarShow);
 
     const toggleSidebar = () => {
         const val = [true, 'responsive'].includes(sidebarShow) ? false : 'responsive';
-        dispatch({ type: 'set', sidebarShow: val });
+        dispatch(setSideBar(val));
     };
 
     const toggleSidebarMobile = () => {
         const val = [false, 'responsive'].includes(sidebarShow) ? true : 'responsive';
-        dispatch({ type: 'set', sidebarShow: val });
+        dispatch(setSideBar(val));
     };
     return (
         <CHeader withSubheader>
@@ -66,10 +63,7 @@ const TheHeader = () => {
             </CHeaderNav>
 
             <CSubheader className="px-3 justify-content-between">
-                <CBreadcrumbRouter
-                    className="border-0 c-subheader-nav m-0 px-0 px-md-3"
-                    routes={routes}
-                />
+                <CBreadcrumbRouter className="border-0 c-subheader-nav m-0 px-0 px-md-3" routes={routes} />
                 <div className="d-md-down-none mfe-2 c-subheader-nav">
                     <CLink className="c-subheader-nav-link" href="#">
                         <CIcon name="cil-speech" alt="Settings" />

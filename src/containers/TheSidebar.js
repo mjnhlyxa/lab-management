@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     CCreateElement,
@@ -11,15 +12,15 @@ import {
     CSidebarNavDropdown,
     CSidebarNavItem,
 } from '@coreui/react';
+import CIcon from '@coreui/icons-react'
 import styled from 'styled-components';
 import { Text } from 'rebass';
 import { FaFlask } from 'react-icons/fa';
 import { withTranslation } from 'react-i18next';
 
-import CIcon from '@coreui/icons-react';
-
 // sidebar nav config
 import navigation1 from './_nav';
+import { setSideBar } from 'actions/actions';
 
 const SideBarBrand = styled(CSidebarBrand)`
     text-decoration: none !important;
@@ -39,9 +40,9 @@ const Logo = () => {
     );
 };
 
-const TheSidebar = ({ t }) => {
+const TheSidebar = ({ t, setSideBar }) => {
     const dispatch = useDispatch();
-    const show = useSelector((state) => state.sidebarShow);
+    const show = useSelector((state) => state.sidebar.sidebarShow);
     const [navigation, setNavigation] = useState([]);
     useEffect(() => {
         setNavigation([
@@ -73,7 +74,7 @@ const TheSidebar = ({ t }) => {
     }, [t]);
 
     return (
-        <CSidebar show={show} onShowChange={(val) => dispatch({ type: 'set', sidebarShow: val })}>
+        <CSidebar show={show} onShowChange={(val) => dispatch(setSideBar(val))}>
             <SideBarBrand className="d-md-down-none" to="/">
                 <Logo />
                 {/* <CIcon
@@ -99,4 +100,8 @@ const TheSidebar = ({ t }) => {
     );
 };
 
-export default React.memo(withTranslation()(TheSidebar));
+const mapDispatchToProps = {
+    setSideBar,
+};
+
+export default React.memo(connect(null, mapDispatchToProps)(withTranslation()(TheSidebar)));

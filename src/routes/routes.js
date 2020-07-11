@@ -2,6 +2,8 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { CFade } from '@coreui/react';
 
+import withAuth from 'utils/withAuth';
+
 const Test = React.lazy(() => import('pages/Test/Test'));
 const Dashboard = React.lazy(() => import('views/dashboard/Dashboard'));
 
@@ -21,11 +23,11 @@ export const Routing = () => (
                         path={route.path}
                         exact={route.exact}
                         name={route.name}
-                        render={(props) => (
+                        component={withAuth((props) => (
                             <CFade>
                                 <route.component {...props} />
                             </CFade>
-                        )}
+                        ))}
                     />
                 )
             );

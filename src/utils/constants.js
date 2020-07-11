@@ -11,6 +11,12 @@ export const FIELD_TYPE = {
     PASSWORD: 9,
 };
 
+export const RESPONSE_STATE = {
+    WAITING: 0,
+    SUCCESSS: 1,
+    FAILED: -1,
+};
+
 export const LANGUAGE_SUPPORTED = {
     ENG: 'en',
     VIE: 'vi',

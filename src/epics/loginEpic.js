@@ -13,7 +13,7 @@ export const loginEpic = (action$, store, { login }) =>
             (action) =>
                 login(action.payload).pipe(
                     map((res) => {
-                        return loginSuccess();
+                        return loginSuccess(res.data);
                     }),
                     catchError((error) =>
                         of(loginFailed()),

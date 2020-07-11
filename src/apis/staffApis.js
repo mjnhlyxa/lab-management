@@ -11,22 +11,11 @@ export const toFromData = (obj) => {
     return formData;
 };
 
-export const login = (data) =>
-    from(axios.post("http://myslim.nlsoft.vn/api/login", toFromData(data), {
-        headers: {
-            'content-type': 'multipart/form-data',
-        }
-    }));
+export const login = (data) => from(axios.post('http://myslim.nlsoft.vn/api/login', toFromData(data)));
 
-export const getStaff = ({ response, saId }) =>
-    Observable.fromPromise(
-        axios.post('', {
-            response,
-            saId,
-        }),
-    );
+// export const login = (data) => Observable.fromPromise(axios.post('http://myslim.nlsoft.vn/api/login', data));
 
 export default {
     login,
-    getStaff,
+    // getStaff,
 };
