@@ -3,7 +3,9 @@
         "menu": {
             "hrManagement": "HR Management",
             "positionMgnt": "Position Management",
-            "customerMgnt": "Customer Management"
+            "customerMgnt": "Customer Management",
+            "userMgnt": "User Management",
+            "user": "Users"
         }
     },
     "settings": {

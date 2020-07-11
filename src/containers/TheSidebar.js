@@ -70,6 +70,19 @@ const TheSidebar = ({ t, setSideBar }) => {
                 route: '/base',
                 icon: 'cil-cursor',
             },
+            {
+                _tag: 'CSidebarNavDropdown',
+                name: t('sideBar.menu.userMgnt'),
+                route: '/users',
+                icon: 'cil-puzzle',
+                _children: [
+                    {
+                        _tag: 'CSidebarNavItem',
+                        name: t('sideBar.menu.user'),
+                        to: '/users',
+                    },
+                ],
+            },
         ]);
     }, [t]);
 

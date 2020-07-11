@@ -131,7 +131,16 @@ const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     );
 });
 
-export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
+const searchIdInList = (list, id) => {
+    const item = list.find((item) => item[0] === id) || [];
+    const [, text] = item;
+    return {
+        text,
+        item,
+    };
+};
+
+export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }) => {
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
@@ -169,7 +178,8 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
             {
                 name: 'Action',
                 sortable: false,
-                cell: ({ id }) => {
+                cell: (row) => {
+                    const { id } = row;
                     return (
                         <>
                             <EditRowBtn
@@ -180,7 +190,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
                                 onSubmit={onSubmitEditedRow}
                                 onCancel={onCancelEditing}
                             />
-                            <IconWrapper onClick={() => deleteRow(id)}>
+                            <IconWrapper onClick={() => deleteRow(row)}>
                                 <FaTrash />
                             </IconWrapper>
                         </>
@@ -192,7 +202,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
 
     const getColumns = () => {
         const { fields = [] } = structure;
-        return fields.map(({ type, name, caption, sortable }) => {
+        return fields.map(({ type, name, caption, sortable, choices, listName }) => {
             return {
                 name: <ColmnName value={caption} type={type} name={name} onSubmit={onSubmitFilter} />,
                 sortable: false,
@@ -204,8 +214,16 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
                     if (isEditing) {
                         return <Field type={type} value={value} onChange={(e) => onRowValueChange(e, name)} />;
                     }
-
-                    return id === editingRow ? <Input type="text" value={value} /> : <Text>{value}</Text>;
+                    if (choices && listName) {
+                        let str = '';
+                        const list = get(data, 'list', {})[listName];
+                        value.forEach((el) => {
+                            const { text, item } = searchIdInList(list, el);
+                            str = `${str}${text}\n`;
+                        });
+                        return <Text>{str}</Text>;
+                    }
+                    return <Text>{value}</Text>;
                 },
             };
         });
@@ -222,8 +240,8 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
         setEditRow(-1);
     }, []);
 
-    const deleteRow = (id) => {
-        console.log(`delete row with id ${id}`);
+    const deleteRow = (row) => {
+        onDelete(row);
     };
 
     const onRowValueChange = (e, fieldName) => {
@@ -248,7 +266,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {} }) => {
     return (
         <DataTable
             columns={columns}
-            data={data}
+            data={data.data}
             sortServer
             onSort={onSort}
             pagination

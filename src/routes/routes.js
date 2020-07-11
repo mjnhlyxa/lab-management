@@ -6,11 +6,13 @@ import withAuth from 'utils/withAuth';
 
 const Test = React.lazy(() => import('pages/Test/Test'));
 const Dashboard = React.lazy(() => import('views/dashboard/Dashboard'));
+const UserManagement = React.lazy(() => import('pages/users/UserManagement'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard', name: 'Dashboard', component: Dashboard },
     { path: '/test', exact: true, name: 'Test', component: Test },
+    { path: '/users', exact: true, name: 'User Management', component: UserManagement },
 ];
 
 export const Routing = () => (
