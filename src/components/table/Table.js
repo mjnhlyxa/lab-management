@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
@@ -7,8 +7,9 @@ import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 
-import Button from 'components/Button';
-import Input from 'components/Input';
+import Button from 'components/button/Button';
+import Input from 'components/input/Input';
+import ListSelect from 'components/input/ListSelect';
 import { FIELD_TYPE, FILTER_ID } from 'utils/constants';
 import { TextFilter, NumberFilter } from 'components/table/columnFilters';
 
@@ -18,13 +19,18 @@ const IconWrapper = styled(Box).attrs(() => ({
     cursor: pointer;
 `;
 
-const Field = memo(({ type, value: initValue, onChange }) => {
+const Field = memo(({ type, value: initValue, onChange, list, multichoices }) => {
     const [val, setVal] = useState(initValue);
     const change = (e) => {
         const value = get(e, 'target.value', e);
         setVal(value);
         onChange(value);
     };
+
+    if (multichoices) {
+        return <ListSelect items={list} selected={initValue} onChange={onChange} />;
+        // const mappingFields = list[listName];
+    }
 
     switch (type) {
         case FIELD_TYPE.STRING:
@@ -202,7 +208,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
 
     const getColumns = () => {
         const { fields = [] } = structure;
-        return fields.map(({ type, name, caption, sortable, choices, listName }) => {
+        return fields.map(({ type, name, caption, sortable, choices, listName, editable }) => {
             return {
                 name: <ColmnName value={caption} type={type} name={name} onSubmit={onSubmitFilter} />,
                 sortable: false,
@@ -211,8 +217,16 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
                     const value = row[name];
                     const { id } = row;
                     const isEditing = id === editingRow;
-                    if (isEditing) {
-                        return <Field type={type} value={value} onChange={(e) => onRowValueChange(e, name)} />;
+                    if (isEditing && editable) {
+                        return (
+                            <Field
+                                type={type}
+                                value={value}
+                                onChange={(e) => onRowValueChange(e, id, name)}
+                                list={data.list[listName]}
+                                multichoices={Boolean(listName && choices)}
+                            />
+                        );
                     }
                     if (choices && listName) {
                         let str = '';
@@ -244,12 +258,13 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
         onDelete(row);
     };
 
-    const onRowValueChange = (e, fieldName) => {
+    const onRowValueChange = (e, id, fieldName) => {
         const value = get(e, 'target.value', e);
         console.log(`set field ${fieldName} with value ${value}`);
         setRowData((prev) => {
             return {
                 ...prev,
+                id: prev.id || id,
                 [fieldName]: value,
             };
         });

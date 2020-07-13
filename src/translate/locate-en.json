@@ -1,4 +1,12 @@
 {
+    "common": {
+        "button": {
+            "label": {
+                "from": "From",
+                "to": "To"
+            }
+        }
+    },
     "sideBar": {
         "menu": {
             "hrManagement": "HR Management",

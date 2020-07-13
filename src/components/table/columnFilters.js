@@ -1,17 +1,17 @@
-import React, { useState, memo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, memo, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Text, Box, Flex } from 'rebass';
 import get from 'lodash/get';
 
 import { FIELD_TYPE, FILTER_ID } from 'utils/constants';
-import Selectbox from 'components/Selectbox';
-import Button from 'components/Button';
-import Input from 'components/Input';
+import Selectbox from 'components/input/Selectbox';
+import Button from 'components/button/Button';
+import Input from 'components/input/Input';
 
 export const TextFilter = ({ name, onSubmit, type }) => {
     const ref = useRef({ filterType: FILTER_ID.CONTAIN, value: '' });
 
-    const options = useCallback(
-        [
+    const options = useMemo(
+        () => [
             {
                 id: FILTER_ID.START_BY,
                 value: 'Start by:',
@@ -116,19 +116,15 @@ export const NumberFilter = ({ name, onSubmit, type }) => {
                 defaultValue={ref.current.filterType}
                 onChange={onSelectChange}
             />
-            {
-                filterType === FILTER_ID.BETWEEN && (
-                    <>
-                        from
-                        <Input width="4rem" type="number" onChange={onInputChange} />
-                        to
-                        <Input width="4rem" type="number" onChange={onInputChange} />
-                    </>
-                )
-            }
-            {
-                filterType
-            }
+            {filterType === FILTER_ID.BETWEEN && (
+                <>
+                    from
+                    <Input width="4rem" type="number" onChange={onInputChange} />
+                    to
+                    <Input width="4rem" type="number" onChange={onInputChange} />
+                </>
+            )}
+            {filterType}
             <Input width="4rem" type="number" onChange={onInputChange} />
             <Button onClick={submit}>Submit</Button>
         </Flex>
