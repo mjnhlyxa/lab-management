@@ -36,7 +36,7 @@ export const Test = ({ login }) => {
     //         <button onClick={() => login({user: 1, password: 'gacoi'})}>sdas</button>
     //     </>
     // )
-    return <Table structure={columnsJ} data={dataJ.data} />;
+    return <Table api="http://myslim.nlsoft.vn/api/form/user/users" structure={columnsJ} data={dataJ.data} />;
 };
 
 const mapStateToProps = ({

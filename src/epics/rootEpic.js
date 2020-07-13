@@ -1,7 +1,8 @@
 import { combineEpics } from 'redux-observable';
 import loginEpic from 'epics/loginEpic';
+import tableEpic from 'epics/tableEpic';
 
-const epics = [loginEpic].filter(Boolean);
+const epics = [loginEpic, tableEpic].filter(Boolean);
 
 const rootEpic = combineEpics(...epics);
 

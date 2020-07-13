@@ -22,30 +22,26 @@ export const UserManagement = ({
     users,
     getAllUsers,
 }) => {
-    const [structure, setStruture] = useState();
-    const [data, setData] = useState();
-    useEffect(() => {
-        getUserDefinition();
-    }, []);
+    // const [structure, setStruture] = useState();
+    // const [data, setData] = useState();
+    // useEffect(() => {
+    //     getUserDefinition();
+    // }, []);
 
-    useEffect(() => {
-        if (getDefinitionState === RESPONSE_STATE.SUCCESSS) {
-            setStruture(definition);
-            getAllUsers();
-        }
-    }, [getDefinitionState]);
+    // useEffect(() => {
+    //     if (getDefinitionState === RESPONSE_STATE.SUCCESSS) {
+    //         setStruture(definition);
+    //         getAllUsers();
+    //     }
+    // }, [getDefinitionState]);
 
-    useEffect(() => {
-        if (getAllUsersState === RESPONSE_STATE.SUCCESSS) {
-            setData(users);
-        }
-    }, [getAllUsersState]);
+    // useEffect(() => {
+    //     if (getAllUsersState === RESPONSE_STATE.SUCCESSS) {
+    //         setData(users);
+    //     }
+    // }, [getAllUsersState]);
 
-    const onDeleteRow = (row) => {
-        console.log(row);
-    }
-
-    return structure && data ? <Table structure={structure} data={data} onDelete={onDeleteRow}/> : null;
+    return <Table api="http://myslim.nlsoft.vn/api/form/user/users" />;
 };
 
 const mapStateToProps = ({ users: { loading, getDefinitionState, definition, getAllUsersState, users } }) => ({

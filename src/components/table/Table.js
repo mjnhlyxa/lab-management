@@ -1,4 +1,5 @@
 import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
@@ -7,10 +8,11 @@ import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 
+import { fetchTableDefinition, fetchTableData, updateTableRow, deleteTableRow } from 'actions/actions';
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 import ListSelect from 'components/input/ListSelect';
-import { FIELD_TYPE, FILTER_ID } from 'utils/constants';
+import { FIELD_TYPE, FILTER_ID, RESPONSE_STATE } from 'utils/constants';
 import { TextFilter, NumberFilter } from 'components/table/columnFilters';
 
 const IconWrapper = styled(Box).attrs(() => ({
@@ -146,20 +148,52 @@ const searchIdInList = (list, id) => {
     };
 };
 
-export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }) => {
+export const Table = ({
+    api,
+    fetchTableDefinition,
+    fetchTableData,
+    updateTableRow,
+    deleteTableRow,
+    loading,
+    structure,
+    data,
+    fetchDefinitionState,
+    fetchDataState,
+    updateDataState,
+}) => {
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
+    useEffect(() => {
+        fetchTableDefinition(api);
+    }, []);
 
     useEffect(() => {
-        if (structure) {
+        if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
+            fetchTableData(api);
+        }
+    }, [fetchDefinitionState]);
+
+    useEffect(() => {
+        if (fetchDataState === RESPONSE_STATE.SUCCESSS) {
+            console.log('fetch data success');
+        }
+    }, [fetchDataState]);
+
+    useEffect(() => {
+        if (structure && data) {
             initColumns();
         }
-    }, [structure, editingRow]);
+    }, [structure, data, editingRow]);
+
+    useEffect(() => {
+        if (updateDataState === RESPONSE_STATE.SUCCESSS) {
+            fetchTableData(api);
+        }
+    }, [updateDataState]);
 
     const initColumns = () => {
         const cols = [...getSelectionColumn(), ...getActionColumn(), ...getColumns()];
-
         setColumns(cols);
     };
 
@@ -172,7 +206,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
                 name: 'Selection',
                 sortable: false,
                 cell: (row) => {
-                    return <Input type="checkbox" onChange={() => onRowSelect(row)} />;
+                    return <Input type="checkbox" onChange={() => {}} />;
                 },
             });
         }
@@ -215,27 +249,29 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
                 selector: name,
                 cell: (row) => {
                     const value = row[name];
-                    const { id } = row;
+                    const { id, login_id } = row;
                     const isEditing = id === editingRow;
                     if (isEditing && editable) {
                         return (
                             <Field
                                 type={type}
                                 value={value}
-                                onChange={(e) => onRowValueChange(e, id, name)}
+                                onChange={(e) => onRowValueChange(e, id, name, login_id)}
                                 list={data.list[listName]}
                                 multichoices={Boolean(listName && choices)}
                             />
                         );
                     }
                     if (choices && listName) {
-                        let str = '';
                         const list = get(data, 'list', {})[listName];
-                        value.forEach((el) => {
-                            const { text, item } = searchIdInList(list, el);
-                            str = `${str}${text}\n`;
-                        });
-                        return <Text>{str}</Text>;
+                        return (
+                            <ul>
+                                {value.map((el) => {
+                                    const { text, item } = searchIdInList(list, el);
+                                    return <li>{text}</li>;
+                                })}
+                            </ul>
+                        );
                     }
                     return <Text>{value}</Text>;
                 },
@@ -243,28 +279,32 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
         });
     };
 
+    console.log('render table');
+
     const onSubmitEditedRow = useCallback(() => {
-        setRowData((prev) => {
-            console.log('submit row:', prev);
-            return prev;
+        setRowData((data) => {
+            updateTableRow({ api, data });
+            return data;
         });
-    }, []);
+        setEditRow(-1);
+    }, [rowData]);
 
     const onCancelEditing = useCallback(() => {
         setEditRow(-1);
     }, []);
 
-    const deleteRow = (row) => {
-        onDelete(row);
+    const deleteRow = (data) => {
+        deleteTableRow({ api, data });
     };
 
-    const onRowValueChange = (e, id, fieldName) => {
+    const onRowValueChange = (e, id, fieldName, login_id) => {
         const value = get(e, 'target.value', e);
         console.log(`set field ${fieldName} with value ${value}`);
         setRowData((prev) => {
             return {
                 ...prev,
                 id: prev.id || id,
+                login_id: prev.login_id || login_id,
                 [fieldName]: value,
             };
         });
@@ -278,7 +318,7 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
         console.log(event);
     };
 
-    return (
+    return structure && data ? (
         <DataTable
             columns={columns}
             data={data.data}
@@ -290,7 +330,25 @@ export const Table = ({ structure, data = {}, onRowSelect = () => {}, onDelete }
             paginationRowsPerPageOptions={[5, 10]}
             paginationTotalRows={20}
         />
-    );
+    ) : null;
 };
 
-export default memo(Table);
+const mapStateToProps = ({
+    table: { loading, structure, data, fetchDefinitionState, fetchDataState, updateDataState },
+}) => ({
+    loading,
+    structure,
+    data,
+    fetchDefinitionState,
+    fetchDataState,
+    updateDataState,
+});
+
+const mapDispatchToProps = {
+    fetchTableDefinition,
+    fetchTableData,
+    updateTableRow,
+    deleteTableRow,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);

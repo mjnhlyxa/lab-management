@@ -17,3 +17,20 @@ export const getUserDefinitionFailed = createAction(actionTypes.GET_USERS_DEFINI
 export const getAllUsers = createAction(actionTypes.GET_ALL_USERS);
 export const getAllUsersSuccess = createAction(actionTypes.GET_ALL_USERS_SUCCESS);
 export const getAllUsersFailed = createAction(actionTypes.GET_ALL_USERS_FAILED);
+
+// table
+export const fetchTableDefinition = createAction(actionTypes.FETCH_TABLE_DEFINITION);
+export const fetchTableDefinitionSuccess = createAction(actionTypes.FETCH_TABLE_DEFINITION_SUCCESS);
+export const fetchTableDefinitionFailed = createAction(actionTypes.FETCH_TABLE_DEFINITION_FAILED);
+export const fetchTableData = createAction(actionTypes.FETCH_TABLE_DATA);
+export const fetchTableDataSuccess = createAction(actionTypes.FETCH_TABLE_DATA_SUCCESS);
+export const fetchTableDataFailed = createAction(actionTypes.FETCH_TABLE_DATA_FAILED);
+export const updateTableRow = createAction(actionTypes.UPDATE_TABLE_ROW);
+export const updateTableRowSuccess = createAction(actionTypes.UPDATE_TABLE_ROW_SUCCESS);
+export const updateTableRowFailed = createAction(actionTypes.UPDATE_TABLE_ROW_FAILED);
+export const deleteTableRow = createAction(actionTypes.DELETE_TABLE_ROW);
+export const deleteTableRowSuccess = createAction(actionTypes.DELETE_TABLE_ROW_SUCCESS);
+export const deleteTableRowFailed = createAction(actionTypes.DELETE_TABLE_ROW_FAILED);
+export const addTableRow = createAction(actionTypes.ADD_TABLE_ROW);
+export const addTableRowSuccess = createAction(actionTypes.ADD_TABLE_ROW_SUCCESS);
+export const addTableRowFailed = createAction(actionTypes.ADD_TABLE_ROW_FAILED);
