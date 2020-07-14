@@ -16,10 +16,13 @@ import {
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
+import columns from 'pages/Test/columns.json';
+import data from 'pages/Test/data.json';
+
 const initialState = {
     loading: false,
-    structure: undefined,
-    data: undefined,
+    structure: columns,
+    data: data,
     fetchDefinitionState: RESPONSE_STATE.WAITING,
     fetchDataState: RESPONSE_STATE.WAITING,
     updateDataState: RESPONSE_STATE.WAITING,

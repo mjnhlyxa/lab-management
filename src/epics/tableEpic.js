@@ -41,8 +41,8 @@ export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition 
 export const fetchTableDataEpic = (action$, store, { fetchTableData }) =>
     action$.pipe(
         ofType(FETCH_TABLE_DATA),
-        mergeMap(({ payload: api }) =>
-            fetchTableData(api).pipe(
+        mergeMap(({ payload }) =>
+            fetchTableData(payload).pipe(
                 map((res) => {
                     return fetchTableDataSuccess(res.data);
                 }),

@@ -4,6 +4,7 @@ import get from 'lodash/get';
 
 import { FIELD_TYPE, FILTER_ID } from 'utils/constants';
 import Selectbox from 'components/input/Selectbox';
+import ListSelect from 'components/input/ListSelect';
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 
@@ -132,74 +133,55 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
         </Flex>
     );
 });
+export const ListFilter = memo(({ name, list, onSubmit, type }) => {
+    const [filterType, setFilterType] = useState(FILTER_ID.EQUAL);
+    const [value, setValue] = useState('');
 
-export const ListFilter = ({ name, list, onSubmit, type }) => {
-    const ref = useRef({ filterType: FILTER_ID.CONTAIN, value: undefined });
-
-    const [filterType, setFilterType] = useState(FILTER_ID.CONTAIN);
-
-    const options = useCallback(
-        [
+    const options = useMemo(
+        () => [
             {
-                id: FILTER_ID.LESS_THAN,
-                value: 'Less than:',
+                id: FILTER_ID.EQUAL,
+                value: 'Equal',
             },
             {
-                id: FILTER_ID.MORE_THAN,
-                value: 'More than:',
+                id: FILTER_ID.NOT_EQUAL,
+                value: 'Not equal',
             },
             {
-                id: FILTER_ID.MATCH,
-                value: 'Equal:',
-            },
-            {
-                id: FILTER_ID.BETWEEN,
-                value: 'Between:',
+                id: FILTER_ID.CONTAIN,
+                value: 'Contain',
             },
         ],
         [],
     );
 
-    const onSelectChange = useCallback((value) => {
-        ref.current.filterType = value;
-        if (value === FILTER_ID.BETWEEN) {
-            ref.current.value = {
-                from: undefined,
-                to: undefined,
-            };
-        }
-        setFilterType(value);
+    const onFilterTypeChange = useCallback((value) => {
+        setFilterType(Number(value));
     }, []);
 
-    const onInputChange = useCallback((e) => {
-        const val = get(e, 'target.value');
-        ref.current.value = val;
+    const onSelecting = useCallback((selectedList) => {
+        setValue(selectedList);
     }, []);
 
     const submit = useCallback(() => {
-        const { filterType, value } = ref.current;
-        onSubmit({ name, filterType, value, type });
-    }, []);
+        onSubmit(makeFilterData());
+    }, [value, filterType]);
+
+    const makeFilterData = () => {
+        return {
+            [name]: {
+                name: name,
+                type: filterType,
+                value1: value,
+            },
+        };
+    };
 
     return (
         <Flex flexDirection="row">
-            <Selectbox
-                borderRadius={4}
-                options={options}
-                defaultValue={ref.current.filterType}
-                onChange={onSelectChange}
-            />
-            {filterType === FILTER_ID.BETWEEN && (
-                <>
-                    from
-                    <Input width="4rem" type="number" onChange={onInputChange} />
-                    to
-                    <Input width="4rem" type="number" onChange={onInputChange} />
-                </>
-            )}
-            {filterType}
-            <Input width="4rem" type="number" onChange={onInputChange} />
-            <Button onClick={submit}>Submit</Button>
+            <Selectbox borderRadius={4} options={options} defaultValue={filterType} onChange={onFilterTypeChange} />
+            <ListSelect items={list} onChange={onSelecting} />
+            <Button onClick={submit}>Search</Button>
         </Flex>
     );
-};
+});

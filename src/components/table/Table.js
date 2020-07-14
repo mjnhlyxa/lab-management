@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
-import { FaPencilAlt, FaBan, FaTrash, FaCheck, FaFilter } from 'react-icons/fa';
+import { FaPencilAlt, FaBan, FaTrash, FaCheck, FaFilter, FaTimes, FaPlus } from 'react-icons/fa';
 import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
@@ -13,7 +13,7 @@ import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 import ListSelect from 'components/input/ListSelect';
 import { FIELD_TYPE, FILTER_ID, RESPONSE_STATE } from 'utils/constants';
-import { TextFilter, NumberFilter } from 'components/table/columnFilters';
+import { TextFilter, ListFilter } from 'components/table/columnFilters';
 
 const IconWrapper = styled(Box).attrs(() => ({
     p: 2,
@@ -75,15 +75,15 @@ const ColumnNameWrapper = styled(Box)`
     }
 `;
 
-const ColmnName = memo(({ name, value, type, onSubmit }) => {
+const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices }) => {
     return (
         <ColumnNameWrapper>
-            <Text as="span">{value}</Text>
+            <Text as="span" color="white">{value}</Text>
             <FilterWrapper>
                 <OverlayTrigger
                     trigger="click"
                     placement="auto"
-                    overlay={getFilterPopover(name, type, onSubmit)}
+                    overlay={getFilterPopover({ name, type, onSubmit, list, multichoices })}
                     rootClose>
                     <FilterIcon />
                 </OverlayTrigger>
@@ -97,7 +97,7 @@ const StyledPopover = styled(Popover)`
     padding: 1rem;
 `;
 
-const getFilterPopover = (name, type, onSubmit) => {
+const getFilterPopover = ({ name, type, onSubmit, list, multichoices }) => {
     let Content;
 
     switch (type) {
@@ -113,10 +113,14 @@ const getFilterPopover = (name, type, onSubmit) => {
             break;
     }
 
+    if (multichoices) {
+        Content = ListFilter;
+    }
+
     return (
         <StyledPopover>
             <Popover.Content>
-                <Content name={name} onSubmit={onSubmit} type={type} />
+                <Content name={name} onSubmit={onSubmit} type={type} list={list} />
             </Popover.Content>
         </StyledPopover>
     );
@@ -139,6 +143,18 @@ const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     );
 });
 
+const Filtered = memo(({ filterColumn, onDiscard }) => {
+    return (
+        <>
+            <Flex flexDirection="row">
+                <Text>Filtered by:</Text>
+                <Box>{filterColumn}</Box>
+                <FaTimes onClick={onDiscard} />
+            </Flex>
+        </>
+    );
+});
+
 const searchIdInList = (list, id) => {
     const item = list.find((item) => item[0] === id) || [];
     const [, text] = item;
@@ -147,6 +163,42 @@ const searchIdInList = (list, id) => {
         item,
     };
 };
+
+const customStyles = {
+    header: {
+        style: {
+            minHeight: '56px',
+            // backgroundColor: '#636f83',
+        },
+    },
+    headRow: {
+        style: {
+            borderTop: '1px solid #c5c5c5',
+            borderBottom: '1px solid #c5c5c5',
+            backgroundColor: '#6e7a8e',
+            color: 'white',
+        },
+    },
+    headCells: {
+        style: {
+            '&:not(:last-of-type)': {
+                borderRight: '1px solid #c5c5c5',
+            },
+        },
+    },
+    cells: {
+        style: {
+            borderBottom: '1px solid #c5c5c5',
+            color: '#474747',
+            '&:not(:last-of-type)': {
+                borderRight: '1px solid #c5c5c5',
+            },
+        },
+    },
+};
+
+const PAGE_SIZE = 5;
+const PAGE_SIZE_SETTING = [5, 10];
 
 export const Table = ({
     api,
@@ -165,14 +217,17 @@ export const Table = ({
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(PAGE_SIZE);
+    const [filterColumn, setFilterColumn] = useState('qweqwe');
 
     useEffect(() => {
-        fetchTableDefinition(api);
+        // fetchTableDefinition(api);
     }, []);
 
     useEffect(() => {
         if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
-            fetchTableData(api);
+            refreshData();
         }
     }, [fetchDefinitionState]);
 
@@ -190,12 +245,12 @@ export const Table = ({
 
     useEffect(() => {
         if (updateDataState === RESPONSE_STATE.SUCCESSS) {
-            fetchTableData(api);
+            refreshData();
         }
     }, [updateDataState]);
 
     const initColumns = () => {
-        const cols = [...getSelectionColumn(), ...getActionColumn(), ...getColumns()];
+        const cols = [...getSelectionColumn(), ...getColumns(), ...getActionColumn()];
         setColumns(cols);
     };
 
@@ -245,8 +300,19 @@ export const Table = ({
     const getColumns = () => {
         const { fields = [] } = structure;
         return fields.map(({ type, name, caption, sortable, choices, listName, editable }) => {
+            const isMultichoices = Boolean(listName && choices);
+            const list = get(data, 'list', {})[listName];
             return {
-                name: <ColmnName value={caption} type={type} name={name} onSubmit={onSubmitFilter} />,
+                name: (
+                    <ColmnName
+                        value={caption}
+                        type={type}
+                        name={name}
+                        onSubmit={onSubmitFilter}
+                        list={list}
+                        multichoices={isMultichoices}
+                    />
+                ),
                 sortable: false,
                 selector: name,
                 cell: (row) => {
@@ -260,12 +326,11 @@ export const Table = ({
                                 value={value}
                                 onChange={(e) => onRowValueChange(e, id, name, login_id)}
                                 list={data.list[listName]}
-                                multichoices={Boolean(listName && choices)}
+                                multichoices={isMultichoices}
                             />
                         );
                     }
-                    if (choices && listName) {
-                        const list = get(data, 'list', {})[listName];
+                    if (isMultichoices) {
                         return (
                             <ul>
                                 {value.map((el) => {
@@ -282,6 +347,10 @@ export const Table = ({
     };
 
     console.log('render table');
+
+    const refreshData = () => {
+        fetchTableData({ api, pageSize, pageIndex });
+    };
 
     const onSubmitEditedRow = useCallback(() => {
         setRowData((data) => {
@@ -319,27 +388,66 @@ export const Table = ({
             searchInfo: filter,
         };
         console.log(payload);
+        setFilterColumn(Object.keys(filter)[0]);
         searchInTable({ api, data: payload });
     };
 
-    const onSort = (column, sortDirection, event) => {
-        console.log(event);
+    const onDiscardFilter = () => {
+        refreshData();
+    };
+
+    const onSort = (column, sortDirection) => {
+        console.log();
+    };
+
+    const onChangeRowsPerPage = (pageSize, currentPage) => {
+        console.log(pageSize);
+        console.log(currentPage);
+        setPageSize(pageSize);
+        fetchTableData({ api, pageSize, pageIndex });
+    };
+
+    const onChangePage = (pageIndex, totalRows) => {
+        console.log(pageIndex);
+        console.log(totalRows);
+        setPageIndex(pageIndex);
+        fetchTableData({ api, pageSize, pageIndex });
     };
 
     return structure && data ? (
-        <DataTable
-            columns={columns}
-            data={data.data}
-            sortServer
-            onSort={onSort}
-            pagination
-            paginationServer
-            paginationPerPage={5}
-            paginationRowsPerPageOptions={[5, 10]}
-            paginationTotalRows={20}
-        />
+        <>
+            {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
+            <DataTable
+                title="ádsdadas"
+                striped
+                actions={<TableActions />}
+                highlightOnHover
+                responsive
+                columns={columns}
+                data={data.data}
+                pagination
+                paginationServer
+                paginationPerPage={pageSize}
+                paginationRowsPerPageOptions={PAGE_SIZE_SETTING}
+                paginationTotalRows={data.total}
+                onChangePage={onChangePage}
+                onChangeRowsPerPage={onChangeRowsPerPage}
+                customStyles={customStyles}
+                fixedHeader
+                // fixedHeaderScrollHeight="300px"
+            />
+        </>
     ) : null;
 };
+
+const TableActions = memo(() => {
+    return (
+        <Box>
+            <FaPlus />
+            <Filtered />
+        </Box>
+    )
+})
 
 const mapStateToProps = ({
     table: { loading, structure, data, fetchDefinitionState, fetchDataState, updateDataState },
