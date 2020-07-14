@@ -7,6 +7,7 @@ import {
     UPDATE_TABLE_ROW,
     DELETE_TABLE_ROW,
     ADD_TABLE_ROW,
+    SEARCH_IN_TABLE,
 } from '../actions/actionTypes';
 import { combineEpics } from 'redux-observable';
 import {
@@ -20,6 +21,8 @@ import {
     deleteTableRowFailed,
     addTableRowSuccess,
     addTableRowFailed,
+    searchInTableSuccess,
+    searchInTableFailed,
 } from 'actions/actions';
 
 export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition }) =>
@@ -74,4 +77,23 @@ export const deleteTableRowEpic = (action$, store, { deleteTableRow }) =>
         ),
     );
 
-export default combineEpics(fetchTableDefinitionEpic, fetchTableDataEpic, updateTableRowEpic, deleteTableRowEpic);
+export const searchInTableEpic = (action$, store, { searchInTable }) =>
+    action$.pipe(
+        ofType(SEARCH_IN_TABLE),
+        mergeMap(({ payload: { api, data } }) =>
+            searchInTable(api, data).pipe(
+                map((res) => {
+                    return searchInTableSuccess(res.data);
+                }),
+                catchError((error) => of(searchInTableFailed())),
+            ),
+        ),
+    );
+
+export default combineEpics(
+    fetchTableDefinitionEpic,
+    fetchTableDataEpic,
+    updateTableRowEpic,
+    deleteTableRowEpic,
+    searchInTableEpic,
+);

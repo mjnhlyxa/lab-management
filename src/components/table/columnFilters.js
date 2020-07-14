@@ -7,60 +7,133 @@ import Selectbox from 'components/input/Selectbox';
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 
-export const TextFilter = ({ name, onSubmit, type }) => {
-    const ref = useRef({ filterType: FILTER_ID.CONTAIN, value: '' });
+export const TextFilter = memo(({ name, onSubmit, type }) => {
+    const [filterType, setFilterType] = useState(FILTER_ID.EQUAL);
+    const [value, setValue] = useState('');
+    const [nextValue, setNextValue] = useState('');
 
     const options = useMemo(
         () => [
             {
-                id: FILTER_ID.START_BY,
-                value: 'Start by:',
+                id: FILTER_ID.START_WITH,
+                value: 'Start with',
             },
             {
-                id: FILTER_ID.END_BY,
-                value: 'End by:',
+                id: FILTER_ID.END_WITH,
+                value: 'End with',
             },
             {
                 id: FILTER_ID.CONTAIN,
-                value: 'Contain:',
+                value: 'Contain',
             },
             {
-                id: FILTER_ID.MATCH,
-                value: 'Match:',
+                id: FILTER_ID.EQUAL,
+                value: 'Equal',
+            },
+            {
+                id: FILTER_ID.NOT_EQUAL,
+                value: 'Not equal',
+            },
+            {
+                id: FILTER_ID.IN,
+                value: 'In',
+            },
+            {
+                id: FILTER_ID.NOT_IN,
+                value: 'Not in',
+            },
+            {
+                id: FILTER_ID.BETWEEN,
+                value: 'Between',
+            },
+            {
+                id: FILTER_ID.NOT_BETWEEN,
+                value: 'Not between',
             },
         ],
         [],
     );
 
     const onSelectChange = useCallback((value) => {
-        ref.current.filterType = value;
+        setFilterType(Number(value));
     }, []);
 
     const onInputChange = useCallback((e) => {
         const val = get(e, 'target.value');
-        ref.current.value = val;
+        setValue(val);
+    }, []);
+
+    const onNextInputChange = useCallback((e) => {
+        const val = get(e, 'target.value');
+        setNextValue(val);
     }, []);
 
     const submit = useCallback(() => {
-        const { filterType, value } = ref.current;
-        onSubmit({ name, filterType, value, type });
-    }, []);
+        onSubmit(makeFilterData());
+    }, [value, nextValue, filterType]);
+
+    const makeFilterData = () => {
+        let filterData = {};
+        switch (filterType) {
+            case FILTER_ID.EQUAL:
+            case FILTER_ID.NOT_EQUAL:
+            case FILTER_ID.CONTAIN:
+            case FILTER_ID.START_WITH:
+            case FILTER_ID.END_WITH:
+                filterData = {
+                    value1: value,
+                    type: filterType,
+                };
+                break;
+            case FILTER_ID.IN:
+            case FILTER_ID.NOT_IN:
+                filterData = {
+                    values: value.split(',').map((el) => el.trim()),
+                    type: filterType,
+                };
+                break;
+            case FILTER_ID.BETWEEN:
+            case FILTER_ID.NOT_BETWEEN:
+                filterData = {
+                    value1: value,
+                    value2: nextValue,
+                    type: filterType === FILTER_ID.BETWEEN ? FILTER_ID.IN : FILTER_ID.NOT_IN,
+                    values: null,
+                };
+            default:
+                break;
+        }
+        return {
+            [name]: {
+                name: name,
+                ...filterData,
+            },
+        };
+    };
+
+    const isNumberType = () => {
+        return type === FIELD_TYPE.FLOAT || type === FIELD_TYPE.INT;
+    };
+
+    const isBetweenFilter = () => filterType === FILTER_ID.BETWEEN || filterType === FILTER_ID.NOT_BETWEEN;
 
     return (
         <Flex flexDirection="row">
-            <Selectbox
-                borderRadius={4}
-                options={options}
-                defaultValue={ref.current.filterType}
-                onChange={onSelectChange}
-            />
-            <Input onChange={onInputChange} />
-            <Button onClick={submit}>Submit</Button>
+            <Selectbox borderRadius={4} options={options} defaultValue={filterType} onChange={onSelectChange} />
+            <Input type={isNumberType() ? 'number' : 'text'} onChange={onInputChange} />
+            {isBetweenFilter() && (
+                <>
+                    <Box>{'>'}</Box>
+                    <Input type={isNumberType() ? 'number' : 'text'} onChange={onNextInputChange} />
+                </>
+            )}
+
+            <Button onClick={submit}>Search</Button>
         </Flex>
     );
-};
+});
 
-export const NumberFilter = ({ name, onSubmit, type }) => {
+export const ListFilter = ({ name, list, onSubmit, type }) => {
     const ref = useRef({ filterType: FILTER_ID.CONTAIN, value: undefined });
 
     const [filterType, setFilterType] = useState(FILTER_ID.CONTAIN);

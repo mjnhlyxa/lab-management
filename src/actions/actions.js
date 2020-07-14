@@ -34,3 +34,6 @@ export const deleteTableRowFailed = createAction(actionTypes.DELETE_TABLE_ROW_FA
 export const addTableRow = createAction(actionTypes.ADD_TABLE_ROW);
 export const addTableRowSuccess = createAction(actionTypes.ADD_TABLE_ROW_SUCCESS);
 export const addTableRowFailed = createAction(actionTypes.ADD_TABLE_ROW_FAILED);
+export const searchInTable = createAction(actionTypes.SEARCH_IN_TABLE);
+export const searchInTableSuccess = createAction(actionTypes.SEARCH_IN_TABLE_SUCCESS);
+export const searchInTableFailed = createAction(actionTypes.SEARCH_IN_TABLE_FAILED);

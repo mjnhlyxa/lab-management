@@ -9,6 +9,10 @@ import {
     UPDATE_TABLE_ROW,
     UPDATE_TABLE_ROW_SUCCESS,
     UPDATE_TABLE_ROW_FAILED,
+    DELETE_TABLE_ROW,
+    SEARCH_IN_TABLE,
+    SEARCH_IN_TABLE_SUCCESS,
+    SEARCH_IN_TABLE_FAILED,
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
@@ -19,6 +23,7 @@ const initialState = {
     fetchDefinitionState: RESPONSE_STATE.WAITING,
     fetchDataState: RESPONSE_STATE.WAITING,
     updateDataState: RESPONSE_STATE.WAITING,
+    searchState: RESPONSE_STATE.WAITING,
 };
 
 const actions = {
@@ -72,6 +77,32 @@ const actions = {
         ...state,
         loading: false,
         updateDataState: RESPONSE_STATE.FAILED,
+    }),
+    [SEARCH_IN_TABLE]: (state) => ({
+        ...state,
+        loading: true,
+        searchState: RESPONSE_STATE.FAILED,
+    }),
+    [SEARCH_IN_TABLE]: (state) => ({
+        ...state,
+        loading: true,
+        searchState: RESPONSE_STATE.FAILED,
+    }),
+    [SEARCH_IN_TABLE]: (state) => ({
+        ...state,
+        loading: true,
+        searchState: RESPONSE_STATE.FAILED,
+    }),
+    [SEARCH_IN_TABLE_SUCCESS]: (state, {payload}) => ({
+        ...state,
+        loading: false,
+        data: payload,
+        searchState: RESPONSE_STATE.SUCCESSS,
+    }),
+    [SEARCH_IN_TABLE_FAILED]: (state) => ({
+        ...state,
+        loading: false,
+        searchState: RESPONSE_STATE.FAILED,
     }),
 };
 

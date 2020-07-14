@@ -55,4 +55,4 @@ const ListSelect = ({ items = [], selected = [], onChange }) => {
     );
 };
 
-export default styled(memo(ListSelect))(space, color, layout, borderRadius);
+export default memo(styled(ListSelect)(space, color, layout, borderRadius));

@@ -3,13 +3,14 @@ import { ajax } from 'rxjs/ajax';
 import axios from 'axios';
 import forOwn from 'lodash/forOwn';
 import forEach from 'lodash/forEach';
+import isObject from 'lodash/isObject';
 
 axios.defaults.withCredentials = true;
 
 export const toFromData = (obj) => {
     const formData = new FormData();
     forOwn(obj, (value, key) => {
-        formData.set(key, value);
+        formData.set(key, isObject(value) ? JSON.stringify(value) : value);
     });
     return formData;
 };

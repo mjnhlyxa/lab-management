@@ -8,7 +8,7 @@ import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 
-import { fetchTableDefinition, fetchTableData, updateTableRow, deleteTableRow } from 'actions/actions';
+import { fetchTableDefinition, fetchTableData, updateTableRow, deleteTableRow, searchInTable } from 'actions/actions';
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 import ListSelect from 'components/input/ListSelect';
@@ -106,7 +106,7 @@ const getFilterPopover = (name, type, onSubmit) => {
             break;
         case FIELD_TYPE.INT:
         case FIELD_TYPE.FLOAT:
-            Content = NumberFilter;
+            Content = TextFilter;
             break;
         default:
             Content = TextFilter;
@@ -160,10 +160,12 @@ export const Table = ({
     fetchDefinitionState,
     fetchDataState,
     updateDataState,
+    searchInTable,
 }) => {
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
+
     useEffect(() => {
         fetchTableDefinition(api);
     }, []);
@@ -268,7 +270,7 @@ export const Table = ({
                             <ul>
                                 {value.map((el) => {
                                     const { text, item } = searchIdInList(list, el);
-                                    return <li>{text}</li>;
+                                    return <li key={text}>{text}</li>;
                                 })}
                             </ul>
                         );
@@ -310,8 +312,14 @@ export const Table = ({
         });
     };
 
-    const onSubmitFilter = ({ name, filterType, value, type }) => {
-        console.log(`filter column: ${name}, with filterType=${filterType} and value = ${value}`);
+    const onSubmitFilter = (filter) => {
+        const payload = {
+            pageSize: 4,
+            pageIndex: 1,
+            searchInfo: filter,
+        };
+        console.log(payload);
+        searchInTable({ api, data: payload });
     };
 
     const onSort = (column, sortDirection, event) => {
@@ -349,6 +357,7 @@ const mapDispatchToProps = {
     fetchTableData,
     updateTableRow,
     deleteTableRow,
+    searchInTable,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Table);

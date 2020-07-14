@@ -23,11 +23,13 @@ export const LANGUAGE_SUPPORTED = {
 };
 
 export const FILTER_ID = {
-    START_BY: 'START_BY',
-    END_BY: 'END_BY',
-    CONTAIN: 'CONTAIN',
-    MATCH: 'MATCH',
-    LESS_THAN: 'LESS_THAN',
-    MORE_THAN: 'MORE_THAN',
-    BETWEEN: 'BETWEEN',
+    EQUAL: 0,
+    NOT_EQUAL: 1,
+    IN: 2,
+    NOT_IN: 3,
+    CONTAIN: 4,
+    START_WITH: 5,
+    END_WITH: 6,
+    BETWEEN: 7,
+    NOT_BETWEEN: 8,
 };
