@@ -20,6 +20,7 @@ import {
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 import ListSelect from 'components/input/ListSelect';
+import CreateTableRowModal from 'components/table/CreateTableRowModal';
 import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
 
@@ -45,7 +46,7 @@ const IconWrapper = styled(Box).attrs(() => ({
     cursor: pointer;
 `;
 
-const Field = memo(({ type, value: initValue, onChange, list, multichoices }) => {
+export const Field = memo(({ type, value: initValue, onChange, list, multichoices }) => {
     const [val, setVal] = useState(initValue);
     const change = (e) => {
         const value = get(e, 'target.value', e);
@@ -535,55 +536,6 @@ const TableActions = connect(null, { showModal, addTableRow })(
         );
     }),
 );
-
-const CreateTableRowModal = memo(({ Header, Body, Footer, data: { api, fields, list = {}, addTableRow }, onHide }) => {
-    const [data, setData] = useState({});
-
-    const onInputChange = useCallback((e, fieldName) => {
-        const value = get(e, 'target.value', e);
-        let newData = { ...data, [fieldName]: value };
-        setData(newData);
-    });
-
-    const onSubmit = () => {
-        addTableRow({ api, data });
-        onHide();
-    };
-
-    return (
-        <>
-            <Header>
-                <Text as="p">Add new record</Text>
-            </Header>
-            <Body>
-                <Flex flexDirection="column">
-                    {fields.map((field) => {
-                        const { type, name, caption, update, required, choices, listName } = field;
-                        const multichoices = Boolean(choices && listName);
-                        return update ? (
-                            <Flex key={name} flexDirection="row">
-                                <Text as="p">
-                                    {caption}
-                                    {required ? '*' : ''}
-                                </Text>
-                                <Field
-                                    type={type}
-                                    onChange={(e) => onInputChange(e, name)}
-                                    list={list[listName]}
-                                    multichoices={multichoices}
-                                />
-                            </Flex>
-                        ) : null;
-                    })}
-                </Flex>
-            </Body>
-            <Footer>
-                <Button onClick={onSubmit}>Create</Button>
-                <Button onClick={onHide}>Cancel</Button>
-            </Footer>
-        </>
-    );
-});
 
 const mapStateToProps = ({
     table: {

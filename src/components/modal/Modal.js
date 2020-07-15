@@ -11,34 +11,32 @@ export const StyledModal = styled(Modal)`
     .modal-content {
         overflow: hidden;
         border: none;
+        width: fit-content;
     }
 `;
 
 const StyledHeader = styled(Modal.Header)`
-    padding: 30px 50px;
+    padding: 1rem 1.5rem;
     border-bottom: none;
-    background-color: black;
-    display: flex;
+    background-color: #6e7a8e;
     align-items: center;
-    p {
-        color: white;
-        font-size: 25px;
-        font-weight: 300;
-        margin: 0;
-    }
+    color: white;
+    font-size: 1.3rem;
+    margin: 0;
+    justify-content: left;
     svg {
-        min-width: 72px;
-        height: 72px;
-        margin-right: 20px;
+        min-width: 2.5rem;
+        height: 2.5rem;
+        margin-right: 1rem;
     }
 `;
 
 const StyledBody = styled(Modal.Body)`
-    padding: 30px 50px;
+    padding: 1rem 1.5rem;
 `;
 
 const StyledFooter = styled(Modal.Footer)`
-    padding: 40px 50px;
+    padding: 1rem 1.5rem;
     border-top: none;
     text-align: left;
 `;
