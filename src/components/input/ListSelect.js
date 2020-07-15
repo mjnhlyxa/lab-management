@@ -7,20 +7,20 @@ import { space, color, layout, borderRadius } from 'styled-system';
 
 const Wrapper = styled.ul`
     position: relative;
-    background: white;
     list-style-type: none;
     padding-left: 0;
+    padding: 0.2rem 0;
 `;
 
 const Item = styled.li`
-    padding: 0.4rem;
-    margin: 0.15rem;
+    padding: 0.2rem 0.4rem;
+    margin: 0.2rem;
     border-radius: 0.3rem;
     :hover {
-        background: ${({ selected }) => (selected ? 'black' : '#dadada')};
+        background: ${({ selected }) => (selected ? '#6e7a8e' : '#dadada')};
         cursor: pointer;
     }
-    background-color: ${({ selected }) => (selected ? 'black' : 'white')};
+    background-color: ${({ selected }) => (selected ? '#6e7a8e' : '#efefef')};
     color: ${({ selected }) => (selected ? 'white' : '#bebaba')};
 `;
 

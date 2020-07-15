@@ -90,10 +90,24 @@ export const searchInTableEpic = (action$, store, { searchInTable }) =>
         ),
     );
 
+export const addTableRowEpic = (action$, store, { addTableRow }) =>
+    action$.pipe(
+        ofType(ADD_TABLE_ROW),
+        mergeMap(({ payload: { api, data } }) =>
+            addTableRow(api, data).pipe(
+                map((res) => {
+                    return addTableRowSuccess(res.data);
+                }),
+                catchError((error) => of(addTableRowFailed())),
+            ),
+        ),
+    );
+
 export default combineEpics(
     fetchTableDefinitionEpic,
     fetchTableDataEpic,
     updateTableRowEpic,
     deleteTableRowEpic,
     searchInTableEpic,
+    addTableRowEpic,
 );

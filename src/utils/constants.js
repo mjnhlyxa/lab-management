@@ -33,3 +33,7 @@ export const FILTER_ID = {
     BETWEEN: 7,
     NOT_BETWEEN: 8,
 };
+
+export const MODAL_ID = {
+    CREATE_TABLE_DATA_MODAL: 'CREATE_TABLE_DATA_MODAL',
+}

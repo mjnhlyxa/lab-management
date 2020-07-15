@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { CFade } from '@coreui/react';
 
 import withAuth from 'utils/withAuth';
+import Modal from 'components/modal/Modal';
 
 const Test = React.lazy(() => import('pages/Test/Test'));
 const Dashboard = React.lazy(() => import('views/dashboard/Dashboard'));
@@ -16,26 +17,29 @@ const routes = [
 ];
 
 export const Routing = () => (
-    <Switch>
-        {routes.map((route, idx) => {
-            return (
-                route.component && (
-                    <Route
-                        key={idx}
-                        path={route.path}
-                        exact={route.exact}
-                        name={route.name}
-                        component={withAuth((props) => (
-                            <CFade>
-                                <route.component {...props} />
-                            </CFade>
-                        ))}
-                    />
-                )
-            );
-        })}
-        <Redirect from="/" to="/dashboard" />
-    </Switch>
+    <>
+        <Modal />
+        <Switch>
+            {routes.map((route, idx) => {
+                return (
+                    route.component && (
+                        <Route
+                            key={idx}
+                            path={route.path}
+                            exact={route.exact}
+                            name={route.name}
+                            component={withAuth((props) => (
+                                <CFade>
+                                    <route.component {...props} />
+                                </CFade>
+                            ))}
+                        />
+                    )
+                );
+            })}
+            <Redirect from="/" to="/dashboard" />
+        </Switch>
+    </>
 );
 
 export default Routing;

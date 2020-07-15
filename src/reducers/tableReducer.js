@@ -13,6 +13,9 @@ import {
     SEARCH_IN_TABLE,
     SEARCH_IN_TABLE_SUCCESS,
     SEARCH_IN_TABLE_FAILED,
+    ADD_TABLE_ROW,
+    ADD_TABLE_ROW_SUCCESS,
+    ADD_TABLE_ROW_FAILED,
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
@@ -21,11 +24,12 @@ import data from 'pages/Test/data.json';
 
 const initialState = {
     loading: false,
-    structure: columns,
-    data: data,
+    structure: undefined,
+    data: undefined,
     fetchDefinitionState: RESPONSE_STATE.WAITING,
     fetchDataState: RESPONSE_STATE.WAITING,
     updateDataState: RESPONSE_STATE.WAITING,
+    addDataState: RESPONSE_STATE.WAITING,
     searchState: RESPONSE_STATE.WAITING,
 };
 
@@ -84,19 +88,9 @@ const actions = {
     [SEARCH_IN_TABLE]: (state) => ({
         ...state,
         loading: true,
-        searchState: RESPONSE_STATE.FAILED,
+        searchState: RESPONSE_STATE.WAITING,
     }),
-    [SEARCH_IN_TABLE]: (state) => ({
-        ...state,
-        loading: true,
-        searchState: RESPONSE_STATE.FAILED,
-    }),
-    [SEARCH_IN_TABLE]: (state) => ({
-        ...state,
-        loading: true,
-        searchState: RESPONSE_STATE.FAILED,
-    }),
-    [SEARCH_IN_TABLE_SUCCESS]: (state, {payload}) => ({
+    [SEARCH_IN_TABLE_SUCCESS]: (state, { payload }) => ({
         ...state,
         loading: false,
         data: payload,
@@ -106,6 +100,21 @@ const actions = {
         ...state,
         loading: false,
         searchState: RESPONSE_STATE.FAILED,
+    }),
+    [ADD_TABLE_ROW]: (state) => ({
+        ...state,
+        loading: true,
+        addDataState: RESPONSE_STATE.WAITING,
+    }),
+    [ADD_TABLE_ROW_SUCCESS]: (state, {payload}) => ({
+        ...state,
+        loading: false,
+        addDataState: RESPONSE_STATE.SUCCESSS,
+    }),
+    [ADD_TABLE_ROW_FAILED]: (state) => ({
+        ...state,
+        loading: false,
+        addDataState: RESPONSE_STATE.FAILED,
     }),
 };
 

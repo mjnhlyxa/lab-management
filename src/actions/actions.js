@@ -37,3 +37,9 @@ export const addTableRowFailed = createAction(actionTypes.ADD_TABLE_ROW_FAILED);
 export const searchInTable = createAction(actionTypes.SEARCH_IN_TABLE);
 export const searchInTableSuccess = createAction(actionTypes.SEARCH_IN_TABLE_SUCCESS);
 export const searchInTableFailed = createAction(actionTypes.SEARCH_IN_TABLE_FAILED);
+
+// Modal
+export const updateStack = createAction(actionTypes.UPDATE_MODAL);
+export const showModal = createAction(actionTypes.SHOW_MODAL);
+export const hideModal = createAction(actionTypes.HIDE_MODAL);
+export const showGenericErrorModal = createAction(actionTypes.SHOW_GENERIC_ERROR_MODAL);

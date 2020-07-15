@@ -8,12 +8,36 @@ import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 
-import { fetchTableDefinition, fetchTableData, updateTableRow, deleteTableRow, searchInTable } from 'actions/actions';
+import {
+    fetchTableDefinition,
+    fetchTableData,
+    updateTableRow,
+    deleteTableRow,
+    searchInTable,
+    addTableRow,
+    showModal,
+} from 'actions/actions';
 import Button from 'components/button/Button';
 import Input from 'components/input/Input';
 import ListSelect from 'components/input/ListSelect';
-import { FIELD_TYPE, FILTER_ID, RESPONSE_STATE } from 'utils/constants';
+import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
+
+const StyledDataTable = styled(DataTable)`
+    .rdt_TableBody::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        background-color: #f5f5f5;
+    }
+
+    .rdt_TableBody::-webkit-scrollbar {
+        width: 6px;
+        background-color: #f5f5f5;
+    }
+
+    .rdt_TableBody::-webkit-scrollbar-thumb {
+        background-color: #6e7a8e;
+    }
+`;
 
 const IconWrapper = styled(Box).attrs(() => ({
     p: 2,
@@ -46,11 +70,11 @@ const Field = memo(({ type, value: initValue, onChange, list, multichoices }) =>
         case FIELD_TYPE.BOOLEAN:
             return <Input type="checkbox" checked={val} onChange={change} />;
         case FIELD_TYPE.DATE:
-            return <DatePicker selected={new Date(val)} onChange={change} />;
+            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
         case FIELD_TYPE.TIME:
-            return <DatePicker selected={new Date(val)} onChange={change} />;
+            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
         case FIELD_TYPE.DATETIME:
-            return <DatePicker selected={new Date(val)} onChange={change} />;
+            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
         case FIELD_TYPE.FILE:
             return <Input type="text" value={val} onChange={change} />;
         case FIELD_TYPE.PASSWORD:
@@ -70,6 +94,8 @@ const FilterIcon = styled(FaFilter)`
 `;
 
 const ColumnNameWrapper = styled(Box)`
+    font-size: 0.8rem;
+    font-weight: bold;
     &:hover ${FilterIcon} {
         visibility: visible;
     }
@@ -78,7 +104,9 @@ const ColumnNameWrapper = styled(Box)`
 const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices }) => {
     return (
         <ColumnNameWrapper>
-            <Text as="span" color="white">{value}</Text>
+            <Text as="span" color="white">
+                {value}
+            </Text>
             <FilterWrapper>
                 <OverlayTrigger
                     trigger="click"
@@ -143,18 +171,6 @@ const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     );
 });
 
-const Filtered = memo(({ filterColumn, onDiscard }) => {
-    return (
-        <>
-            <Flex flexDirection="row">
-                <Text>Filtered by:</Text>
-                <Box>{filterColumn}</Box>
-                <FaTimes onClick={onDiscard} />
-            </Flex>
-        </>
-    );
-});
-
 const searchIdInList = (list, id) => {
     const item = list.find((item) => item[0] === id) || [];
     const [, text] = item;
@@ -167,7 +183,7 @@ const searchIdInList = (list, id) => {
 const customStyles = {
     header: {
         style: {
-            minHeight: '56px',
+            minHeight: '3.5rem',
             // backgroundColor: '#636f83',
         },
     },
@@ -181,6 +197,8 @@ const customStyles = {
     },
     headCells: {
         style: {
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
             '&:not(:last-of-type)': {
                 borderRight: '1px solid #c5c5c5',
             },
@@ -188,6 +206,8 @@ const customStyles = {
     },
     cells: {
         style: {
+            paddingLeft: '0.5rem',
+            paddingRight: '0.5rem',
             borderBottom: '1px solid #c5c5c5',
             color: '#474747',
             '&:not(:last-of-type)': {
@@ -197,8 +217,29 @@ const customStyles = {
     },
 };
 
+const estimateColumnWidth = (type, isMultichoices) => {
+    if (isMultichoices) {
+        return 3;
+    }
+    switch (type) {
+        case FIELD_TYPE.STRING:
+        case FIELD_TYPE.PASSWORD:
+        case FIELD_TYPE.TEXT:
+            return 2;
+        case FIELD_TYPE.FLOAT:
+        case FIELD_TYPE.INT:
+        case FIELD_TYPE.BOOLEAN:
+            return 1;
+        case FIELD_TYPE.DATE:
+        case FIELD_TYPE.TIME:
+        case FIELD_TYPE.DATETIME:
+        case FIELD_TYPE.FILE:
+            return 3;
+    }
+};
+
 const PAGE_SIZE = 5;
-const PAGE_SIZE_SETTING = [5, 10];
+const PAGE_SIZE_SETTING = [5, 10, 20];
 
 export const Table = ({
     api,
@@ -208,21 +249,25 @@ export const Table = ({
     deleteTableRow,
     loading,
     structure,
-    data,
+    data: dataFromProps,
     fetchDefinitionState,
     fetchDataState,
     updateDataState,
+    addDataState,
+    searchState,
     searchInTable,
+    showModal,
 }) => {
+    const [data, setData] = useState(dataFromProps);
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE);
-    const [filterColumn, setFilterColumn] = useState('qweqwe');
+    const [filterColumn, setFilterColumn] = useState('qweqw');
 
     useEffect(() => {
-        // fetchTableDefinition(api);
+        fetchTableDefinition(api);
     }, []);
 
     useEffect(() => {
@@ -232,10 +277,10 @@ export const Table = ({
     }, [fetchDefinitionState]);
 
     useEffect(() => {
-        if (fetchDataState === RESPONSE_STATE.SUCCESSS) {
-            console.log('fetch data success');
+        if (fetchDataState === RESPONSE_STATE.SUCCESSS || searchState === RESPONSE_STATE.SUCCESSS) {
+            setData(dataFromProps);
         }
-    }, [fetchDataState]);
+    }, [fetchDataState, searchState]);
 
     useEffect(() => {
         if (structure && data) {
@@ -244,10 +289,10 @@ export const Table = ({
     }, [structure, data, editingRow]);
 
     useEffect(() => {
-        if (updateDataState === RESPONSE_STATE.SUCCESSS) {
+        if (updateDataState === RESPONSE_STATE.SUCCESSS || addDataState === RESPONSE_STATE.SUCCESSS) {
             refreshData();
         }
-    }, [updateDataState]);
+    }, [updateDataState, addDataState]);
 
     const initColumns = () => {
         const cols = [...getSelectionColumn(), ...getColumns(), ...getActionColumn()];
@@ -260,8 +305,10 @@ export const Table = ({
         // if support row selection
         if (selection) {
             cols.push({
-                name: 'Selection',
+                id: 'selection',
+                name: '',
                 sortable: false,
+                width: '3rem',
                 cell: (row) => {
                     return <Input type="checkbox" onChange={() => {}} />;
                 },
@@ -273,6 +320,7 @@ export const Table = ({
     const getActionColumn = () => {
         return [
             {
+                id: 'action',
                 name: 'Action',
                 sortable: false,
                 cell: (row) => {
@@ -283,6 +331,7 @@ export const Table = ({
                                 editing={editingRow === id}
                                 onEdit={() => {
                                     setEditRow(id);
+                                    setRowData({});
                                 }}
                                 onSubmit={onSubmitEditedRow}
                                 onCancel={onCancelEditing}
@@ -303,6 +352,7 @@ export const Table = ({
             const isMultichoices = Boolean(listName && choices);
             const list = get(data, 'list', {})[listName];
             return {
+                id: name,
                 name: (
                     <ColmnName
                         value={caption}
@@ -313,6 +363,7 @@ export const Table = ({
                         multichoices={isMultichoices}
                     />
                 ),
+                grow: estimateColumnWidth(type, isMultichoices),
                 sortable: false,
                 selector: name,
                 cell: (row) => {
@@ -324,7 +375,7 @@ export const Table = ({
                             <Field
                                 type={type}
                                 value={value}
-                                onChange={(e) => onRowValueChange(e, id, name, login_id)}
+                                onChange={(e) => onRowValueChange(e, row, name)}
                                 list={data.list[listName]}
                                 multichoices={isMultichoices}
                             />
@@ -332,12 +383,16 @@ export const Table = ({
                     }
                     if (isMultichoices) {
                         return (
-                            <ul>
+                            <Flex flexDirection="column" p={2}>
                                 {value.map((el) => {
                                     const { text, item } = searchIdInList(list, el);
-                                    return <li key={text}>{text}</li>;
+                                    return (
+                                        <Text as="p" key={text}>
+                                            - {text}
+                                        </Text>
+                                    );
                                 })}
-                            </ul>
+                            </Flex>
                         );
                     }
                     return <Text>{value}</Text>;
@@ -368,14 +423,13 @@ export const Table = ({
         deleteTableRow({ api, data });
     };
 
-    const onRowValueChange = (e, id, fieldName, login_id) => {
+    const onRowValueChange = (e, row, fieldName) => {
         const value = get(e, 'target.value', e);
         console.log(`set field ${fieldName} with value ${value}`);
         setRowData((prev) => {
             return {
+                ...row,
                 ...prev,
-                id: prev.id || id,
-                login_id: prev.login_id || login_id,
                 [fieldName]: value,
             };
         });
@@ -392,9 +446,10 @@ export const Table = ({
         searchInTable({ api, data: payload });
     };
 
-    const onDiscardFilter = () => {
+    const onDiscardFilter = useCallback(() => {
         refreshData();
-    };
+        setFilterColumn('');
+    }, []);
 
     const onSort = (column, sortDirection) => {
         console.log();
@@ -416,13 +471,19 @@ export const Table = ({
 
     return structure && data ? (
         <>
-            {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
-            <DataTable
+            <StyledDataTable
                 title="ádsdadas"
                 striped
-                actions={<TableActions />}
-                highlightOnHover
-                responsive
+                actions={
+                    <TableActions
+                        api={api}
+                        fields={structure.fields}
+                        list={data.list}
+                        filterColumn={filterColumn}
+                        onDiscardFilter={onDiscardFilter}
+                    />
+                }
+                // highlightOnHover
                 columns={columns}
                 data={data.data}
                 pagination
@@ -434,23 +495,107 @@ export const Table = ({
                 onChangeRowsPerPage={onChangeRowsPerPage}
                 customStyles={customStyles}
                 fixedHeader
-                // fixedHeaderScrollHeight="300px"
+                fixedHeaderScrollHeight="26rem"
             />
         </>
     ) : null;
 };
 
-const TableActions = memo(() => {
+const Filtered = memo(({ filterColumn, onDiscard }) => {
     return (
-        <Box>
-            <FaPlus />
-            <Filtered />
-        </Box>
-    )
-})
+        <>
+            <Flex flexDirection="row" fontSize="0.8rem" p="0.3rem 0.5rem" backgroundColor="#dadada">
+                <Text>Filtered by:</Text>
+                <Text>{filterColumn}</Text>
+                <FaTimes onClick={onDiscard} />
+            </Flex>
+        </>
+    );
+});
+
+const TableActions = connect(null, { showModal, addTableRow })(
+    memo(({ api, fields, list, filterColumn, onDiscardFilter, showModal, addTableRow }) => {
+        const onCreateData = () => {
+            showModal({
+                id: MODAL_ID.CREATE_TABLE_DATA_MODAL,
+                render: CreateTableRowModal,
+                data: {
+                    api,
+                    fields,
+                    list,
+                    addTableRow,
+                },
+            });
+        };
+        return (
+            <Flex flexDirection="row">
+                <FaPlus onClick={onCreateData} />
+                {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
+            </Flex>
+        );
+    }),
+);
+
+const CreateTableRowModal = memo(({ Header, Body, Footer, data: { api, fields, list = {}, addTableRow }, onHide }) => {
+    const [data, setData] = useState({});
+
+    const onInputChange = useCallback((e, fieldName) => {
+        const value = get(e, 'target.value', e);
+        let newData = { ...data, [fieldName]: value };
+        setData(newData);
+    });
+
+    const onSubmit = () => {
+        addTableRow({ api, data });
+        onHide();
+    };
+
+    return (
+        <>
+            <Header>
+                <Text as="p">Add new record</Text>
+            </Header>
+            <Body>
+                <Flex flexDirection="column">
+                    {fields.map((field) => {
+                        const { type, name, caption, update, required, choices, listName } = field;
+                        const multichoices = Boolean(choices && listName);
+                        return update ? (
+                            <Flex key={name} flexDirection="row">
+                                <Text as="p">
+                                    {caption}
+                                    {required ? '*' : ''}
+                                </Text>
+                                <Field
+                                    type={type}
+                                    onChange={(e) => onInputChange(e, name)}
+                                    list={list[listName]}
+                                    multichoices={multichoices}
+                                />
+                            </Flex>
+                        ) : null;
+                    })}
+                </Flex>
+            </Body>
+            <Footer>
+                <Button onClick={onSubmit}>Create</Button>
+                <Button onClick={onHide}>Cancel</Button>
+            </Footer>
+        </>
+    );
+});
 
 const mapStateToProps = ({
-    table: { loading, structure, data, fetchDefinitionState, fetchDataState, updateDataState },
+    table: {
+        loading,
+        structure,
+        data,
+        fetchDefinitionState,
+        fetchDataState,
+        updateDataState,
+        addDataState,
+        searchState,
+    },
 }) => ({
     loading,
     structure,
@@ -458,6 +603,8 @@ const mapStateToProps = ({
     fetchDefinitionState,
     fetchDataState,
     updateDataState,
+    addDataState,
+    searchState,
 });
 
 const mapDispatchToProps = {
@@ -466,6 +613,7 @@ const mapDispatchToProps = {
     updateTableRow,
     deleteTableRow,
     searchInTable,
+    showModal,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Table);
+export default connect(mapStateToProps, mapDispatchToProps)(memo(Table));

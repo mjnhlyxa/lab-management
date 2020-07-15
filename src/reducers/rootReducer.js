@@ -5,6 +5,7 @@ import sidebarReducer from './sidebarReducer';
 import loginReducer from 'reducers/loginReducer';
 import usersReducer from 'reducers/usersReduer';
 import tableReducer from 'reducers/tableReducer';
+import modalRuder from 'reducers/modalReducer';
 
 const appReducers = combineReducers({
     router: routerReducer,
@@ -13,6 +14,7 @@ const appReducers = combineReducers({
     sidebar: sidebarReducer,
     login: loginReducer,
     table: tableReducer,
+    modalState: modalRuder,
 });
 
 export default (state, action) => {
