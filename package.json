@@ -58,7 +58,8 @@
     "redux-observable": "^1.2.0",
     "rxjs": "^6.6.0",
     "styled-components": "^5.1.1",
-    "styled-system": "^5.1.5"
+    "styled-system": "^5.1.5",
+    "react-scripts": "^3.4.1"
   },
   "devDependencies": {
     "eslint-plugin-import": "^2.22.0",
