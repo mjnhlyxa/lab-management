@@ -40,6 +40,9 @@ export const searchInTableFailed = createAction(actionTypes.SEARCH_IN_TABLE_FAIL
 export const saveVisibleColumns = createAction(actionTypes.SAVE_VISIBLE_COLUMNS);
 export const saveVisibleColumnsSuccess = createAction(actionTypes.SAVE_VISIBLE_COLUMNS_SUCCESS);
 export const saveVisibleColumnsFailed = createAction(actionTypes.SAVE_VISIBLE_COLUMNS_FAILED);
+export const sortByColumn = createAction(actionTypes.SORT_BY_COLUMN);
+export const sortByColumnSuccess = createAction(actionTypes.SORT_BY_COLUMN_SUCCESS);
+export const sortByColumnFailed = createAction(actionTypes.SORT_BY_COLUMN_FAILED);
 
 // Modal
 export const updateStack = createAction(actionTypes.UPDATE_MODAL);

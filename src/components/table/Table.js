@@ -18,6 +18,7 @@ import {
     searchInTable,
     addTableRow,
     showModal,
+    sortByColumn,
 } from 'actions/actions';
 import Input from 'components/input/Input';
 import { IconButton } from 'components/button/Button';
@@ -86,28 +87,29 @@ export const Field = memo(({ type, value: initValue, onChange, list, multichoice
 });
 
 const FilterWrapper = styled(Box).attrs(() => ({
-    p: 1,
-    display: 'inline',
+    p: 0,
 }))`
     cursor: pointer;
+    position: absolute;
+    right: 1rem;
 `;
 
 const FilterIcon = styled(FaFilter)`
-    visibility: hidden;
+    opacity: 0.5;
 `;
 
-const ColumnNameWrapper = styled(Box)`
+const ColumnNameWrapper = styled(Flex)`
     font-size: 0.8rem;
     font-weight: bold;
     &:hover ${FilterIcon} {
-        visibility: visible;
+        opacity: 1;
     }
 `;
 
 const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices, sortable, onSort }) => {
     return (
         <ColumnNameWrapper>
-            <Text as="span" color="white">
+            <Text as="span" color="white" mr={2}>
                 {value}
             </Text>
             {sortable && <FaSort onClick={() => onSort(name)} />}
@@ -262,6 +264,7 @@ export const Table = ({
     searchInTable,
     deleteDataState,
     showModal,
+    sortByColumn,
 }) => {
     const [structure, setStructure] = useState(structureFromProps);
     const [data, setData] = useState(dataFromProps);
@@ -384,7 +387,7 @@ export const Table = ({
                         name={name}
                         list={list}
                         multichoices={isMultichoices}
-                        sortable
+                        sortable={sortable}
                         onSubmit={onSubmitFilter}
                         onSort={onColumnSort}
                     />
@@ -475,18 +478,18 @@ export const Table = ({
         });
     };
 
-    const onColumnSort = useCallback(
-        (name) => {
-            const sortType = sortColumn[name] != SORT_TYPE.ESC ? SORT_TYPE.ESC : SORT_TYPE.DES;
-            setSortColumn({ [name]: sortType });
+    const onColumnSort = (name) => {
+        setSortColumn((prev) => {
+            const sortType = prev[name] != SORT_TYPE.ESC ? SORT_TYPE.ESC : SORT_TYPE.DES;
             const payload = {
                 pageSize,
                 pageIndex,
-                sortInfo: []
-            }
-        },
-        [sortColumn],
-    );
+                sortInfo: JSON.stringify([{ name: name, type: sortType }]),
+            };
+            sortByColumn({ api, data: payload });
+            return { [name]: sortType };
+        });
+    };
 
     const onSubmitFilter = (filter) => {
         const payload = {
@@ -502,7 +505,7 @@ export const Table = ({
     const onDiscardFilter = useCallback(() => {
         refreshData();
         setFilterColumn('');
-    }, []);
+    }, [pageSize, pageIndex]);
 
     const onChangeStructure = useCallback((struct, isSave) => {
         setStructure(struct);
@@ -592,6 +595,7 @@ const mapDispatchToProps = {
     deleteTableRow,
     searchInTable,
     showModal,
+    sortByColumn,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(memo(Table));

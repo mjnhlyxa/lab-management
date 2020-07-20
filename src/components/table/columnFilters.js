@@ -18,22 +18,29 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
             {
                 id: FILTER_ID.START_WITH,
                 value: 'Start with',
+                stringOnly: true,
             },
             {
                 id: FILTER_ID.END_WITH,
                 value: 'End with',
+                stringOnly: true,
             },
             {
                 id: FILTER_ID.CONTAIN,
                 value: 'Contain',
+                stringOnly: true,
             },
             {
                 id: FILTER_ID.EQUAL,
                 value: 'Equal',
+                numberOnly: true,
+                stringOnly: true,
             },
             {
                 id: FILTER_ID.NOT_EQUAL,
                 value: 'Not equal',
+                numberOnly: true,
+                stringOnly: true,
             },
             {
                 id: FILTER_ID.IN,
@@ -46,10 +53,12 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
             {
                 id: FILTER_ID.BETWEEN,
                 value: 'Between',
+                numberOnly: true,
             },
             {
                 id: FILTER_ID.NOT_BETWEEN,
                 value: 'Not between',
+                numberOnly: true,
             },
         ],
         [],
@@ -116,11 +125,13 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
         return type === FIELD_TYPE.FLOAT || type === FIELD_TYPE.INT;
     };
 
+    const getOptions = () =>
+        isNumberType() ? options.filter((el) => el.numberOnly) : options.filter((el) => el.stringOnly);
     const isBetweenFilter = () => filterType === FILTER_ID.BETWEEN || filterType === FILTER_ID.NOT_BETWEEN;
 
     return (
         <Flex flexDirection="row">
-            <Selectbox borderRadius={4} options={options} defaultValue={filterType} onChange={onSelectChange} />
+            <Selectbox borderRadius={4} options={getOptions()} defaultValue={filterType} onChange={onSelectChange} />
             <Input type={isNumberType() ? 'number' : 'text'} onChange={onInputChange} />
             {isBetweenFilter() && (
                 <>
@@ -134,22 +145,22 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
     );
 });
 export const ListFilter = memo(({ name, list, onSubmit, type }) => {
-    const [filterType, setFilterType] = useState(FILTER_ID.EQUAL);
+    const [filterType, setFilterType] = useState(FILTER_ID.IN);
     const [value, setValue] = useState('');
 
     const options = useMemo(
         () => [
+            // {
+            //     id: FILTER_ID.EQUAL,
+            //     value: 'Equal',
+            // },
+            // {
+            //     id: FILTER_ID.NOT_EQUAL,
+            //     value: 'Not equal',
+            // },
             {
-                id: FILTER_ID.EQUAL,
-                value: 'Equal',
-            },
-            {
-                id: FILTER_ID.NOT_EQUAL,
-                value: 'Not equal',
-            },
-            {
-                id: FILTER_ID.CONTAIN,
-                value: 'Contain',
+                id: FILTER_ID.IN,
+                value: 'In',
             },
         ],
         [],
@@ -172,7 +183,9 @@ export const ListFilter = memo(({ name, list, onSubmit, type }) => {
             [name]: {
                 name: name,
                 type: filterType,
-                value1: value,
+                values: value,
+                value1: null,
+                value2: null,
             },
         };
     };

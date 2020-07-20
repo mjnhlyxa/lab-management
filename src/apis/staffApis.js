@@ -28,7 +28,7 @@ export const mappingDataFields = (define, list) => {
     return formData;
 };
 
-export const login = (data) => from(axios.post('http://myslim.nlsoft.vn/api/login', toFromData(data)));
+export const login = (data) => from(axios.post('http://cenlab.nlsoft.vn/api/login', toFromData(data)));
 
 export const getUserDefinition = () =>
     from(axios.post('http://myslim.nlsoft.vn/api/form/user/users', toFromData({ __action__: 'define' })));
@@ -57,7 +57,7 @@ export const searchInTable = (api, data) => from(axios.post(api, toFromData({ __
 
 export const saveVisibleColumns = (api, data) => from(axios.post(api, toFromData({ __action__: 'setting', ...data })));
 
-export const sortColumn = (api, data) => from(axios.post(api, toFromData({ __action__: 'setting', ...data })));
+export const sortColumn = (api, data) => from(axios.post(api, toFromData({ __action__: 'data', ...data })));
 
 export default {
     login,
@@ -70,4 +70,5 @@ export default {
     deleteTableRow,
     addTableRow,
     searchInTable,
+    sortColumn,
 };

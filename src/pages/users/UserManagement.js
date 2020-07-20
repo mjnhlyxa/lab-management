@@ -42,7 +42,7 @@ export const UserManagement = ({
     // }, [getAllUsersState]);
 
     return (
-        <Table api="http://cenlab.nlsoft.vn/api/form/user/users" />
+        <Table api="http://cenlab.nlsoft.vn/api/form/user/roles" />
     );
 };
 

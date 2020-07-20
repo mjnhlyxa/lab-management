@@ -9,6 +9,7 @@ import {
     ADD_TABLE_ROW,
     SEARCH_IN_TABLE,
     SAVE_VISIBLE_COLUMNS,
+    SORT_BY_COLUMN,
 } from '../actions/actionTypes';
 import { combineEpics } from 'redux-observable';
 import {
@@ -26,6 +27,8 @@ import {
     searchInTableFailed,
     saveVisibleColumnsSuccess,
     saveVisibleColumnsFailed,
+    sortByColumnSuccess,
+    sortByColumnFailed,
 } from 'actions/actions';
 
 export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition }) =>
@@ -118,6 +121,18 @@ export const saveVisibleColumnsEpic = (action$, store, { saveVisibleColumns }) =
             ),
         ),
     );
+export const sortByColumnEpic = (action$, store, { sortColumn }) =>
+    action$.pipe(
+        ofType(SORT_BY_COLUMN),
+        mergeMap(({ payload: { api, data } }) =>
+            sortColumn(api, data).pipe(
+                map((res) => {
+                    return sortByColumnSuccess(res.data);
+                }),
+                catchError((error) => of(sortByColumnFailed())),
+            ),
+        ),
+    );
 
 export default combineEpics(
     fetchTableDefinitionEpic,
@@ -127,4 +142,5 @@ export default combineEpics(
     searchInTableEpic,
     addTableRowEpic,
     saveVisibleColumnsEpic,
+    sortByColumnEpic,
 );

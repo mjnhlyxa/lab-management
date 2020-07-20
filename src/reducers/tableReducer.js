@@ -20,6 +20,9 @@ import {
     ADD_TABLE_ROW_FAILED,
     SAVE_VISIBLE_COLUMNS,
     SAVE_VISIBLE_COLUMNS_SUCCESS,
+    SORT_BY_COLUMN,
+    SORT_BY_COLUMN_SUCCESS,
+    SORT_BY_COLUMN_FAILED,
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
@@ -135,6 +138,22 @@ const actions = {
         ...state,
         loading: false,
         deleteDataState: RESPONSE_STATE.FAILED,
+    }),
+    [SORT_BY_COLUMN]: (state) => ({
+        ...state,
+        loading: true,
+        fetchDataState: RESPONSE_STATE.WAITING,
+    }),
+    [SORT_BY_COLUMN_SUCCESS]: (state, { payload }) => ({
+        ...state,
+        loading: false,
+        data: payload,
+        fetchDataState: RESPONSE_STATE.SUCCESSS,
+    }),
+    [SORT_BY_COLUMN_FAILED]: (state) => ({
+        ...state,
+        loading: false,
+        fetchDataState: RESPONSE_STATE.FAILED,
     }),
 };
 
