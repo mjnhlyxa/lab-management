@@ -38,7 +38,7 @@ const StyledBody = styled(Modal.Body)`
 `;
 
 const StyledFooter = styled(Modal.Footer)`
-    padding: 40px 50px;
+    padding: unset;
     border-top: none;
     text-align: left;
 `;

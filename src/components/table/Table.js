@@ -3,10 +3,12 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
-import { FaPencilAlt, FaBan, FaTrash, FaCheck, FaFilter, FaTimes, FaPlus } from 'react-icons/fa';
+import { FaSort, FaPencilAlt, FaBan, FaTrash, FaCheck, FaFilter, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
+import { IoIosRefresh } from 'react-icons/io';
 import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
+import omit from 'lodash/omit';
 
 import {
     fetchTableDefinition,
@@ -17,10 +19,11 @@ import {
     addTableRow,
     showModal,
 } from 'actions/actions';
-import Button from 'components/button/Button';
 import Input from 'components/input/Input';
+import { IconButton } from 'components/button/Button';
 import ListSelect from 'components/input/ListSelect';
-import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE } from 'utils/constants';
+import TableActions from 'components/table/TableActions';
+import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE, SORT_TYPE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
 
 const StyledDataTable = styled(DataTable)`
@@ -45,7 +48,7 @@ const IconWrapper = styled(Box).attrs(() => ({
     cursor: pointer;
 `;
 
-const Field = memo(({ type, value: initValue, onChange, list, multichoices }) => {
+export const Field = memo(({ type, value: initValue, onChange, list, multichoices, height = '1.6rem' }) => {
     const [val, setVal] = useState(initValue);
     const change = (e) => {
         const value = get(e, 'target.value', e);
@@ -60,15 +63,15 @@ const Field = memo(({ type, value: initValue, onChange, list, multichoices }) =>
 
     switch (type) {
         case FIELD_TYPE.STRING:
-            return <Input type="text" value={val} onChange={change} />;
+            return <Input type="text" value={val} onChange={change} height={height} />;
         case FIELD_TYPE.FLOAT:
-            return <Input type="number" value={val} onChange={change} />;
+            return <Input type="number" value={val} onChange={change} height={height} />;
         case FIELD_TYPE.INT:
-            return <Input type="number" value={val} onChange={change} />;
+            return <Input type="number" value={val} onChange={change} height={height} />;
         case FIELD_TYPE.TEXT:
-            return <Input type="text" value={val} onChange={change} />;
+            return <Input type="text" value={val} onChange={change} height={height} />;
         case FIELD_TYPE.BOOLEAN:
-            return <Input type="checkbox" checked={val} onChange={change} />;
+            return <Input type="checkbox" checked={val} onChange={change} height={height} />;
         case FIELD_TYPE.DATE:
             return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
         case FIELD_TYPE.TIME:
@@ -76,9 +79,9 @@ const Field = memo(({ type, value: initValue, onChange, list, multichoices }) =>
         case FIELD_TYPE.DATETIME:
             return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
         case FIELD_TYPE.FILE:
-            return <Input type="text" value={val} onChange={change} />;
+            return <Input type="text" value={val} onChange={change} height={height} />;
         case FIELD_TYPE.PASSWORD:
-            return <Input type="password" value={val} onChange={change} />;
+            return <Input type="password" value={val} onChange={change} height={height} />;
     }
 });
 
@@ -101,12 +104,13 @@ const ColumnNameWrapper = styled(Box)`
     }
 `;
 
-const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices }) => {
+const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices, sortable, onSort }) => {
     return (
         <ColumnNameWrapper>
             <Text as="span" color="white">
                 {value}
             </Text>
+            {sortable && <FaSort onClick={() => onSort(name)} />}
             <FilterWrapper>
                 <OverlayTrigger
                     trigger="click"
@@ -248,7 +252,7 @@ export const Table = ({
     updateTableRow,
     deleteTableRow,
     loading,
-    structure,
+    structure: structureFromProps,
     data: dataFromProps,
     fetchDefinitionState,
     fetchDataState,
@@ -256,15 +260,19 @@ export const Table = ({
     addDataState,
     searchState,
     searchInTable,
+    deleteDataState,
     showModal,
 }) => {
+    const [structure, setStructure] = useState(structureFromProps);
     const [data, setData] = useState(dataFromProps);
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE);
-    const [filterColumn, setFilterColumn] = useState('qweqw');
+    const [filterColumn, setFilterColumn] = useState();
+    const [selectedRows, setSelectedRows] = useState({});
+    const [sortColumn, setSortColumn] = useState({});
 
     useEffect(() => {
         fetchTableDefinition(api);
@@ -272,6 +280,7 @@ export const Table = ({
 
     useEffect(() => {
         if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
+            setStructure(structureFromProps);
             refreshData();
         }
     }, [fetchDefinitionState]);
@@ -286,13 +295,18 @@ export const Table = ({
         if (structure && data) {
             initColumns();
         }
-    }, [structure, data, editingRow]);
+    }, [structure, data, editingRow, selectedRows]);
 
     useEffect(() => {
-        if (updateDataState === RESPONSE_STATE.SUCCESSS || addDataState === RESPONSE_STATE.SUCCESSS) {
+        if (
+            updateDataState === RESPONSE_STATE.SUCCESSS ||
+            addDataState === RESPONSE_STATE.SUCCESSS ||
+            deleteDataState === RESPONSE_STATE.SUCCESSS
+        ) {
+            setSelectedRows({});
             refreshData();
         }
-    }, [updateDataState, addDataState]);
+    }, [updateDataState, addDataState, deleteDataState]);
 
     const initColumns = () => {
         const cols = [...getSelectionColumn(), ...getColumns(), ...getActionColumn()];
@@ -300,17 +314,23 @@ export const Table = ({
     };
 
     const getSelectionColumn = () => {
-        const { selection } = structure;
+        const { optionDelete } = structure;
         const cols = [];
         // if support row selection
-        if (selection) {
+        if (optionDelete) {
             cols.push({
                 id: 'selection',
                 name: '',
                 sortable: false,
                 width: '3rem',
                 cell: (row) => {
-                    return <Input type="checkbox" onChange={() => {}} />;
+                    return (
+                        <Input
+                            type="checkbox"
+                            checked={Boolean(selectedRows[row.id])}
+                            onChange={() => onSelectionRow(row)}
+                        />
+                    );
                 },
             });
         }
@@ -348,19 +368,25 @@ export const Table = ({
 
     const getColumns = () => {
         const { fields = [] } = structure;
-        return fields.map(({ type, name, caption, sortable, choices, listName, editable }) => {
+        const columns = [];
+        fields.forEach(({ type, name, caption, sortable, choices, listName, editable, show }) => {
             const isMultichoices = Boolean(listName && choices);
             const list = get(data, 'list', {})[listName];
-            return {
+            if (!show) {
+                return;
+            }
+            columns.push({
                 id: name,
                 name: (
                     <ColmnName
                         value={caption}
                         type={type}
                         name={name}
-                        onSubmit={onSubmitFilter}
                         list={list}
                         multichoices={isMultichoices}
+                        sortable
+                        onSubmit={onSubmitFilter}
+                        onSort={onColumnSort}
                     />
                 ),
                 grow: estimateColumnWidth(type, isMultichoices),
@@ -397,14 +423,28 @@ export const Table = ({
                     }
                     return <Text>{value}</Text>;
                 },
-            };
+            });
         });
+        return columns;
     };
 
     console.log('render table');
 
-    const refreshData = () => {
+    const refreshData = useCallback(() => {
         fetchTableData({ api, pageSize, pageIndex });
+    }, [pageSize, pageIndex]);
+
+    const onSelectionRow = (row) => {
+        setSelectedRows((prev) => {
+            const { id } = row;
+            let newSelectedRows;
+            if (prev[id]) {
+                newSelectedRows = omit(prev, [id]);
+            } else {
+                newSelectedRows = { ...prev, [id]: row };
+            }
+            return newSelectedRows;
+        });
     };
 
     const onSubmitEditedRow = useCallback(() => {
@@ -435,9 +475,22 @@ export const Table = ({
         });
     };
 
+    const onColumnSort = useCallback(
+        (name) => {
+            const sortType = sortColumn[name] != SORT_TYPE.ESC ? SORT_TYPE.ESC : SORT_TYPE.DES;
+            setSortColumn({ [name]: sortType });
+            const payload = {
+                pageSize,
+                pageIndex,
+                sortInfo: []
+            }
+        },
+        [sortColumn],
+    );
+
     const onSubmitFilter = (filter) => {
         const payload = {
-            pageSize: 4,
+            pageSize,
             pageIndex: 1,
             searchInfo: filter,
         };
@@ -449,6 +502,10 @@ export const Table = ({
     const onDiscardFilter = useCallback(() => {
         refreshData();
         setFilterColumn('');
+    }, []);
+
+    const onChangeStructure = useCallback((struct, isSave) => {
+        setStructure(struct);
     }, []);
 
     const onSort = (column, sortDirection) => {
@@ -477,10 +534,13 @@ export const Table = ({
                 actions={
                     <TableActions
                         api={api}
-                        fields={structure.fields}
+                        structure={structure}
                         list={data.list}
                         filterColumn={filterColumn}
+                        selectedRows={selectedRows}
+                        refreshData={refreshData}
                         onDiscardFilter={onDiscardFilter}
+                        onChangeStructure={onChangeStructure}
                     />
                 }
                 // highlightOnHover
@@ -501,90 +561,6 @@ export const Table = ({
     ) : null;
 };
 
-const Filtered = memo(({ filterColumn, onDiscard }) => {
-    return (
-        <>
-            <Flex flexDirection="row" fontSize="0.8rem" p="0.3rem 0.5rem" backgroundColor="#dadada">
-                <Text>Filtered by:</Text>
-                <Text>{filterColumn}</Text>
-                <FaTimes onClick={onDiscard} />
-            </Flex>
-        </>
-    );
-});
-
-const TableActions = connect(null, { showModal, addTableRow })(
-    memo(({ api, fields, list, filterColumn, onDiscardFilter, showModal, addTableRow }) => {
-        const onCreateData = () => {
-            showModal({
-                id: MODAL_ID.CREATE_TABLE_DATA_MODAL,
-                render: CreateTableRowModal,
-                data: {
-                    api,
-                    fields,
-                    list,
-                    addTableRow,
-                },
-            });
-        };
-        return (
-            <Flex flexDirection="row">
-                <FaPlus onClick={onCreateData} />
-                {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
-            </Flex>
-        );
-    }),
-);
-
-const CreateTableRowModal = memo(({ Header, Body, Footer, data: { api, fields, list = {}, addTableRow }, onHide }) => {
-    const [data, setData] = useState({});
-
-    const onInputChange = useCallback((e, fieldName) => {
-        const value = get(e, 'target.value', e);
-        let newData = { ...data, [fieldName]: value };
-        setData(newData);
-    });
-
-    const onSubmit = () => {
-        addTableRow({ api, data });
-        onHide();
-    };
-
-    return (
-        <>
-            <Header>
-                <Text as="p">Add new record</Text>
-            </Header>
-            <Body>
-                <Flex flexDirection="column">
-                    {fields.map((field) => {
-                        const { type, name, caption, update, required, choices, listName } = field;
-                        const multichoices = Boolean(choices && listName);
-                        return update ? (
-                            <Flex key={name} flexDirection="row">
-                                <Text as="p">
-                                    {caption}
-                                    {required ? '*' : ''}
-                                </Text>
-                                <Field
-                                    type={type}
-                                    onChange={(e) => onInputChange(e, name)}
-                                    list={list[listName]}
-                                    multichoices={multichoices}
-                                />
-                            </Flex>
-                        ) : null;
-                    })}
-                </Flex>
-            </Body>
-            <Footer>
-                <Button onClick={onSubmit}>Create</Button>
-                <Button onClick={onHide}>Cancel</Button>
-            </Footer>
-        </>
-    );
-});
-
 const mapStateToProps = ({
     table: {
         loading,
@@ -595,6 +571,7 @@ const mapStateToProps = ({
         updateDataState,
         addDataState,
         searchState,
+        deleteDataState,
     },
 }) => ({
     loading,
@@ -605,6 +582,7 @@ const mapStateToProps = ({
     updateDataState,
     addDataState,
     searchState,
+    deleteDataState,
 });
 
 const mapDispatchToProps = {

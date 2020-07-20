@@ -20,12 +20,13 @@ import CIcon from '@coreui/icons-react';
 import { login } from 'actions/actions';
 import { RESPONSE_STATE } from 'utils/constants';
 
-const Login = ({ login, loginState, history, user }) => {
+const Login = ({ loading, login, loginState, history, user }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     useEffect(() => {
         if (loginState === RESPONSE_STATE.SUCCESSS && user) {
+            sessionStorage.setItem('token', 1232131231312);
             history.push('/');
         }
     }, [loginState, user]);
@@ -46,6 +47,8 @@ const Login = ({ login, loginState, history, user }) => {
             password,
         });
     };
+
+    const x = "it's me"
 
     return (
         <div className="c-app c-default-layout flex-row align-items-center">
@@ -69,6 +72,7 @@ const Login = ({ login, loginState, history, user }) => {
                                                 placeholder="Username"
                                                 autoComplete="username"
                                                 onChange={onInputUsername}
+                                                disabled={loading}
                                             />
                                         </CInputGroup>
                                         <CInputGroup className="mb-4">
@@ -82,6 +86,7 @@ const Login = ({ login, loginState, history, user }) => {
                                                 placeholder="Password"
                                                 autoComplete="current-password"
                                                 onChange={onInputPassword}
+                                                disabled={loading}
                                             />
                                         </CInputGroup>
                                         <CRow>

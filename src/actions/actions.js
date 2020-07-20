@@ -37,6 +37,9 @@ export const addTableRowFailed = createAction(actionTypes.ADD_TABLE_ROW_FAILED);
 export const searchInTable = createAction(actionTypes.SEARCH_IN_TABLE);
 export const searchInTableSuccess = createAction(actionTypes.SEARCH_IN_TABLE_SUCCESS);
 export const searchInTableFailed = createAction(actionTypes.SEARCH_IN_TABLE_FAILED);
+export const saveVisibleColumns = createAction(actionTypes.SAVE_VISIBLE_COLUMNS);
+export const saveVisibleColumnsSuccess = createAction(actionTypes.SAVE_VISIBLE_COLUMNS_SUCCESS);
+export const saveVisibleColumnsFailed = createAction(actionTypes.SAVE_VISIBLE_COLUMNS_FAILED);
 
 // Modal
 export const updateStack = createAction(actionTypes.UPDATE_MODAL);

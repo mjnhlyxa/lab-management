@@ -15,14 +15,17 @@ export const toFromData = (obj) => {
     return formData;
 };
 
-export const mappingDataField = (data) => {
-    const result = {
-        '__serial__[]': 1,
-    };
-    forEach(data, (value, key) => {
-        result[`${key}[]`] = Array.isArray(value) ? JSON.stringify(value) : value;
+export const mappingDataFields = (define, list) => {
+    const formData = toFromData(define);
+    const inputList = Array.isArray(list) ? list : [list];
+    console.log(121);
+    inputList.forEach((element, idx) => {
+        formData.append('__serial__[]', idx);
+        forEach(element, (value, key) => {
+            formData.append(`${key}[]`, Array.isArray(value) ? JSON.stringify(value) : value);
+        });
     });
-    return result;
+    return formData;
 };
 
 export const login = (data) => from(axios.post('http://myslim.nlsoft.vn/api/login', toFromData(data)));
@@ -43,22 +46,24 @@ export const fetchTableDefinition = (api) => from(axios.post(api, toFromData({ _
 export const fetchTableData = ({ api, ...rest }) => from(axios.post(api, toFromData({ __action__: 'data', ...rest })));
 
 export const updateTableRow = (api, data) => {
-    return from(axios.post(api, toFromData({ __action__: 'update', ...mappingDataField(data) })));
+    return from(axios.post(api, mappingDataFields({ __action__: 'update' }, data)));
 };
 
-export const deleteTableRow = (api, data) =>
-    from(axios.post(api, toFromData({ __action__: 'delete', ...mappingDataField(data) })));
+export const deleteTableRow = (api, data) => from(axios.post(api, mappingDataFields({ __action__: 'delete' }, data)));
 
-export const addTableRow = (api, data) =>
-    from(axios.post(api, toFromData({ __action__: 'insert', ...mappingDataField(data) })));
+export const addTableRow = (api, data) => from(axios.post(api, mappingDataFields({ __action__: 'insert' }, data)));
 
 export const searchInTable = (api, data) => from(axios.post(api, toFromData({ __action__: 'data', ...data })));
+
+export const saveVisibleColumns = (api, data) => from(axios.post(api, toFromData({ __action__: 'setting', ...data })));
+
+export const sortColumn = (api, data) => from(axios.post(api, toFromData({ __action__: 'setting', ...data })));
 
 export default {
     login,
     getUserDefinition,
     getAllUsers,
-
+    saveVisibleColumns,
     fetchTableDefinition,
     fetchTableData,
     updateTableRow,

@@ -8,6 +8,7 @@ import {
     DELETE_TABLE_ROW,
     ADD_TABLE_ROW,
     SEARCH_IN_TABLE,
+    SAVE_VISIBLE_COLUMNS,
 } from '../actions/actionTypes';
 import { combineEpics } from 'redux-observable';
 import {
@@ -23,6 +24,8 @@ import {
     addTableRowFailed,
     searchInTableSuccess,
     searchInTableFailed,
+    saveVisibleColumnsSuccess,
+    saveVisibleColumnsFailed,
 } from 'actions/actions';
 
 export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition }) =>
@@ -70,9 +73,9 @@ export const deleteTableRowEpic = (action$, store, { deleteTableRow }) =>
         mergeMap(({ payload: { api, data } }) =>
             deleteTableRow(api, data).pipe(
                 map((res) => {
-                    return updateTableRowSuccess(res.data);
+                    return deleteTableRowSuccess();
                 }),
-                catchError((error) => of(updateTableRowFailed())),
+                catchError((error) => of(deleteTableRowFailed())),
             ),
         ),
     );
@@ -103,6 +106,19 @@ export const addTableRowEpic = (action$, store, { addTableRow }) =>
         ),
     );
 
+export const saveVisibleColumnsEpic = (action$, store, { saveVisibleColumns }) =>
+    action$.pipe(
+        ofType(SAVE_VISIBLE_COLUMNS),
+        mergeMap(({ payload: { api, data } }) =>
+            saveVisibleColumns(api, data).pipe(
+                map((res) => {
+                    return saveVisibleColumnsSuccess(res.data);
+                }),
+                catchError((error) => of(saveVisibleColumnsFailed())),
+            ),
+        ),
+    );
+
 export default combineEpics(
     fetchTableDefinitionEpic,
     fetchTableDataEpic,
@@ -110,4 +126,5 @@ export default combineEpics(
     deleteTableRowEpic,
     searchInTableEpic,
     addTableRowEpic,
+    saveVisibleColumnsEpic,
 );

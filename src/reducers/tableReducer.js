@@ -10,12 +10,16 @@ import {
     UPDATE_TABLE_ROW_SUCCESS,
     UPDATE_TABLE_ROW_FAILED,
     DELETE_TABLE_ROW,
+    DELETE_TABLE_ROW_SUCCESS,
+    DELETE_TABLE_ROW_FAILED,
     SEARCH_IN_TABLE,
     SEARCH_IN_TABLE_SUCCESS,
     SEARCH_IN_TABLE_FAILED,
     ADD_TABLE_ROW,
     ADD_TABLE_ROW_SUCCESS,
     ADD_TABLE_ROW_FAILED,
+    SAVE_VISIBLE_COLUMNS,
+    SAVE_VISIBLE_COLUMNS_SUCCESS,
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
@@ -30,6 +34,7 @@ const initialState = {
     fetchDataState: RESPONSE_STATE.WAITING,
     updateDataState: RESPONSE_STATE.WAITING,
     addDataState: RESPONSE_STATE.WAITING,
+    deleteDataState: RESPONSE_STATE.WAITING,
     searchState: RESPONSE_STATE.WAITING,
 };
 
@@ -106,7 +111,7 @@ const actions = {
         loading: true,
         addDataState: RESPONSE_STATE.WAITING,
     }),
-    [ADD_TABLE_ROW_SUCCESS]: (state, {payload}) => ({
+    [ADD_TABLE_ROW_SUCCESS]: (state, { payload }) => ({
         ...state,
         loading: false,
         addDataState: RESPONSE_STATE.SUCCESSS,
@@ -115,6 +120,21 @@ const actions = {
         ...state,
         loading: false,
         addDataState: RESPONSE_STATE.FAILED,
+    }),
+    [DELETE_TABLE_ROW]: (state) => ({
+        ...state,
+        loading: true,
+        deleteDataState: RESPONSE_STATE.WAITING,
+    }),
+    [DELETE_TABLE_ROW_SUCCESS]: (state) => ({
+        ...state,
+        loading: false,
+        deleteDataState: RESPONSE_STATE.SUCCESSS,
+    }),
+    [DELETE_TABLE_ROW_FAILED]: (state) => ({
+        ...state,
+        loading: false,
+        deleteDataState: RESPONSE_STATE.FAILED,
     }),
 };
 

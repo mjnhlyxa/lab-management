@@ -34,6 +34,11 @@ export const FILTER_ID = {
     NOT_BETWEEN: 8,
 };
 
+export const SORT_TYPE = {
+    ESC: 0,
+    DES: 1,
+}
+
 export const MODAL_ID = {
     CREATE_TABLE_DATA_MODAL: 'CREATE_TABLE_DATA_MODAL',
 }

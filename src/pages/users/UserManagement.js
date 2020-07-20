@@ -41,7 +41,9 @@ export const UserManagement = ({
     //     }
     // }, [getAllUsersState]);
 
-    return <Table api="http://myslim.nlsoft.vn/api/form/user/users" />;
+    return (
+        <Table api="http://cenlab.nlsoft.vn/api/form/user/users" />
+    );
 };
 
 const mapStateToProps = ({ users: { loading, getDefinitionState, definition, getAllUsersState, users } }) => ({
