@@ -1,12 +1,11 @@
 import React, { useState, memo, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Text, Box, Flex } from 'rebass';
 import get from 'lodash/get';
+import { Button, Input, Space } from 'antd';
 
 import { FIELD_TYPE, FILTER_ID } from 'utils/constants';
 import Selectbox from 'components/input/Selectbox';
 import ListSelect from 'components/input/ListSelect';
-import Button from 'components/button/Button';
-import Input from 'components/input/Input';
 
 export const TextFilter = memo(({ name, onSubmit, type }) => {
     const [filterType, setFilterType] = useState(FILTER_ID.EQUAL);
@@ -131,16 +130,23 @@ export const TextFilter = memo(({ name, onSubmit, type }) => {
 
     return (
         <Flex flexDirection="row">
-            <Selectbox borderRadius={4} options={getOptions()} defaultValue={filterType} onChange={onSelectChange} />
-            <Input type={isNumberType() ? 'number' : 'text'} onChange={onInputChange} />
-            {isBetweenFilter() && (
-                <>
-                    <Box>{'>'}</Box>
-                    <Input type={isNumberType() ? 'number' : 'text'} onChange={onNextInputChange} />
-                </>
-            )}
+            <Space>
+                <Selectbox
+                    options={getOptions()}
+                    defaultValue={filterType}
+                    onChange={onSelectChange}
+                    style={{ width: 100 }}
+                />
+                <Input type={isNumberType() ? 'number' : 'text'} onChange={onInputChange} />
+                {isBetweenFilter() && (
+                    <>
+                        <Box>{'>'}</Box>
+                        <Input type={isNumberType() ? 'number' : 'text'} onChange={onNextInputChange} />
+                    </>
+                )}
 
-            <Button onClick={submit}>Search</Button>
+                <Button onClick={submit}>Search</Button>
+            </Space>
         </Flex>
     );
 });
@@ -191,8 +197,13 @@ export const ListFilter = memo(({ name, list, onSubmit, type }) => {
     };
 
     return (
-        <Flex flexDirection="row">
-            <Selectbox borderRadius={4} options={options} defaultValue={filterType} onChange={onFilterTypeChange} />
+        <Flex flexDirection="row" alignItems="baseline">
+            <Selectbox
+                options={options}
+                defaultValue={filterType}
+                onChange={onFilterTypeChange}
+                style={{ width: 100 }}
+            />
             <ListSelect items={list} onChange={onSelecting} />
             <Button onClick={submit}>Search</Button>
         </Flex>

@@ -21,14 +21,17 @@ import { MODAL_ID } from 'utils/constants';
 import CreateTableRowModal from 'components/table/CreateTableRowModal';
 
 const FilteredWrapper = styled(Flex)`
-    border-radius: 0.4rem;
-    margin-left: 1rem;
+    margin-right: 8px;
+    padding: 0.3rem 0.4rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
 `;
 
-const TagName = styled(Box)`
-    background-color: #6e798e;
-    padding: 0.1rem 0.3rem;
-    border-radius: 0.3rem;
+const Tag = styled(Box)`
+    background-color: rgb(255, 85, 0);
+    border-radius: 0.4rem;
+    font-size: 0.8rem;
+    padding: 0.1rem 0.4rem;
     color: white;
 `;
 
@@ -95,24 +98,19 @@ export const SettingPopover = memo(({ structure, onChangeStructure, setVisibilit
     );
 });
 
-// export const getPopover = (structure, onChangeStructure, saveColumnsSetting, title) => (
-//     <Popover>
-//         <Popover.Title as="h3">{title}</Popover.Title>
-//         <Popover.Content>
-//             <SettingPopover structure={structure} onChangeStructure={onChangeStructure} onSave={saveColumnsSetting} />
-//         </Popover.Content>
-//     </Popover>
-// );
-
-export const Filtered = memo(({ filterColumn, onDiscard }) => {
+export const Filtered = memo(({ filterColumn, onDiscard, t }) => {
     return (
         <>
-            <FilteredWrapper flexDirection="row" fontSize="0.8rem" p="0.3rem 0.5rem" backgroundColor="#dadada">
-                <Text mr={2}>Filtered by:</Text>
-                <TagName>
-                    {filterColumn}
-                    <FaTimes onClick={onDiscard} />
-                </TagName>
+            <FilteredWrapper flexDirection="row" alignItems="center">
+                <Text mr={2} fontSize="0.8rem">
+                    {t('components.table.label.filteredBy')}
+                </Text>
+                <Tag>
+                    <Space>
+                        {filterColumn}
+                        <FaTimes onClick={onDiscard} />
+                    </Space>
+                </Tag>
             </FilteredWrapper>
         </>
     );
@@ -174,6 +172,7 @@ export const TableActions = memo(
         return (
             <Flex flexDirection="row">
                 <Space>
+                    {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} t={t} />}
                     <Button type="primary" onClick={refreshData} icon={<IoIosRefresh />} />
                     <Button type="primary" onClick={onCreateData} icon={<FaPlus />} />
                     <Button type="primary" onClick={deleteSelectedRow} disabled={!isSelecting()} icon={<FaTrash />} />
@@ -186,7 +185,7 @@ export const TableActions = memo(
                                 onSave={saveColumnsSetting}
                             />
                         }
-                        title={t('components.table.filterdBy')}
+                        title={t('components.table.label.filteredBy')}
                         trigger="click"
                         visible={showPopover}
                         onVisibleChange={handlePopoverVisibleChange}
@@ -195,7 +194,6 @@ export const TableActions = memo(
                         <Button type="primary" icon={<FaCog />} />
                     </Popover>
                 </Space>
-                {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
             </Flex>
         );
     },

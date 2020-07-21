@@ -3,10 +3,9 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
-import { notification, Tag, Button as Button1 } from 'antd';
+import { notification, Tag, Button, Popover } from 'antd';
 import { FaSort, FaPencilAlt, FaBan, FaTrashAlt, FaCheck, FaFilter, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
 import { IoIosRefresh } from 'react-icons/io';
-import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
@@ -28,6 +27,7 @@ import TableActions from 'components/table/TableActions';
 import TalbeLoadingSkeleton from 'components/table/TalbeLoadingSkeleton';
 import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE, SORT_TYPE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
+import { useTranslation } from 'react-i18next';
 
 const StyledDataTable = styled(DataTable)`
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -115,31 +115,13 @@ const ColumnNameWrapper = styled(Flex)`
 `;
 
 const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices, sortable, onSort }) => {
-    return (
-        <ColumnNameWrapper flexDirection="row" alignItems="center">
-            <Text as="span" color="black" mr={1}>
-                {value}
-            </Text>
-            {sortable && <FaSort color="#b5b5b5" onClick={() => onSort(name)} />}
-            <FilterWrapper>
-                <OverlayTrigger
-                    trigger="click"
-                    placement="auto"
-                    overlay={getFilterPopover({ name, type, onSubmit, list, multichoices })}
-                    rootClose>
-                    <FilterIcon />
-                </OverlayTrigger>
-            </FilterWrapper>
-        </ColumnNameWrapper>
-    );
-});
+    const [showPopover, setShowPopover] = useState(false);
 
-const StyledPopover = styled(Popover)`
-    min-width: 24.5rem;
-    padding: 1rem;
-`;
+    const { t } = useTranslation();
+    const handlePopoverVisibleChange = (visible) => {
+        setShowPopover(visible);
+    };
 
-const getFilterPopover = ({ name, type, onSubmit, list, multichoices }) => {
     let Content;
 
     switch (type) {
@@ -158,15 +140,36 @@ const getFilterPopover = ({ name, type, onSubmit, list, multichoices }) => {
     if (multichoices) {
         Content = ListFilter;
     }
-
     return (
-        <StyledPopover>
-            <Popover.Content>
-                <Content name={name} onSubmit={onSubmit} type={type} list={list} />
-            </Popover.Content>
-        </StyledPopover>
+        <ColumnNameWrapper flexDirection="row" alignItems="center">
+            <Text as="span" color="black" mr={1}>
+                {value}
+            </Text>
+            {sortable && <FaSort color="#b5b5b5" onClick={() => onSort(name)} />}
+            <FilterWrapper>
+                <Popover
+                    title={
+                        <Text as="p">
+                            {t('components.table.label.filterBy')} <Text as="strong">{name}</Text>
+                        </Text>
+                    }
+                    content={<Content name={name} onSubmit={onSubmit} type={type} list={list} />}
+                    trigger="click"
+                    visible={showPopover}
+                    onVisibleChange={handlePopoverVisibleChange}>
+                    <Box width="0.7rem">
+                        <FaFilter />
+                    </Box>
+                </Popover>
+            </FilterWrapper>
+        </ColumnNameWrapper>
     );
-};
+});
+
+const StyledPopover = styled(Popover)`
+    min-width: 24.5rem;
+    padding: 1rem;
+`;
 
 const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     return editing ? (

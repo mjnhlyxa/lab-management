@@ -29,7 +29,10 @@
     },
     "components": {
         "table": {
-            "filterdBy": "Filterd by:"
+            "label": {
+                "filteredBy": "Filtered by:",
+                "filterBy": "Filter by"
+            }
         }
     },
     "userManagement": {
