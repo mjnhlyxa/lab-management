@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
-import { FaSort, FaPencilAlt, FaBan, FaTrash, FaCheck, FaFilter, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
+import { notification, Tag, Button as Button1 } from 'antd';
+import { FaSort, FaPencilAlt, FaBan, FaTrashAlt, FaCheck, FaFilter, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
 import { IoIosRefresh } from 'react-icons/io';
 import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
@@ -24,10 +25,14 @@ import Input from 'components/input/Input';
 import { IconButton } from 'components/button/Button';
 import ListSelect from 'components/input/ListSelect';
 import TableActions from 'components/table/TableActions';
+import TalbeLoadingSkeleton from 'components/table/TalbeLoadingSkeleton';
 import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE, SORT_TYPE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
 
 const StyledDataTable = styled(DataTable)`
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     .rdt_TableBody::-webkit-scrollbar-track {
         -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
         background-color: #f5f5f5;
@@ -47,6 +52,10 @@ const IconWrapper = styled(Box).attrs(() => ({
     p: 2,
 }))`
     cursor: pointer;
+`;
+
+const Title = styled(Text)`
+    width: fit-content;
 `;
 
 export const Field = memo(({ type, value: initValue, onChange, list, multichoices, height = '1.6rem' }) => {
@@ -90,29 +99,28 @@ const FilterWrapper = styled(Box).attrs(() => ({
     p: 0,
 }))`
     cursor: pointer;
-    position: absolute;
-    right: 1rem;
 `;
 
 const FilterIcon = styled(FaFilter)`
-    opacity: 0.5;
+    width: 0.7rem;
 `;
 
 const ColumnNameWrapper = styled(Flex)`
     font-size: 0.8rem;
     font-weight: bold;
-    &:hover ${FilterIcon} {
-        opacity: 1;
+    color: #1990ff;
+    &:hover {
+        color: #469ff2;
     }
 `;
 
 const ColmnName = memo(({ name, value, list, type, onSubmit, multichoices, sortable, onSort }) => {
     return (
-        <ColumnNameWrapper>
-            <Text as="span" color="white" mr={2}>
+        <ColumnNameWrapper flexDirection="row" alignItems="center">
+            <Text as="span" color="black" mr={1}>
                 {value}
             </Text>
-            {sortable && <FaSort onClick={() => onSort(name)} />}
+            {sortable && <FaSort color="#b5b5b5" onClick={() => onSort(name)} />}
             <FilterWrapper>
                 <OverlayTrigger
                     trigger="click"
@@ -163,15 +171,15 @@ const getFilterPopover = ({ name, type, onSubmit, list, multichoices }) => {
 const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     return editing ? (
         <>
-            <IconWrapper onClick={onSubmit}>
+            <IconWrapper onClick={onSubmit} color="#62c707">
                 <FaCheck />
             </IconWrapper>
-            <IconWrapper onClick={onCancel}>
+            <IconWrapper onClick={onCancel} color="#ff8300">
                 <FaBan />
             </IconWrapper>
         </>
     ) : (
-        <IconWrapper onClick={onEdit}>
+        <IconWrapper onClick={onEdit} color="#1990ff">
             <FaPencilAlt />
         </IconWrapper>
     );
@@ -187,6 +195,11 @@ const searchIdInList = (list, id) => {
 };
 
 const customStyles = {
+    contextMenu: {
+        style: {
+            backgroundColor: 'white',
+        },
+    },
     header: {
         style: {
             minHeight: '3.5rem',
@@ -197,16 +210,21 @@ const customStyles = {
         style: {
             borderTop: '1px solid #c5c5c5',
             borderBottom: '1px solid #c5c5c5',
-            backgroundColor: '#6e7a8e',
-            color: 'white',
+            // marginBottom: '0.5rem',
+            // borderRadius: '0.3rem',
+            // boxShadow: '0 3px 5px 0 rgba(0, 0, 0, 0.2)',
+            backgroundColor: '#fafafa',
         },
     },
     headCells: {
         style: {
             paddingLeft: '0.5rem',
             paddingRight: '0.5rem',
+            // border: '1px solid #cccccc',
+            // margin: '0.5rem 0',
+            // borderRadius: '0.5rem',
             '&:not(:last-of-type)': {
-                borderRight: '1px solid #c5c5c5',
+                // borderRight: '1px solid #c5c5c5',
             },
         },
     },
@@ -217,7 +235,7 @@ const customStyles = {
             borderBottom: '1px solid #c5c5c5',
             color: '#474747',
             '&:not(:last-of-type)': {
-                borderRight: '1px solid #c5c5c5',
+                // borderLeft: '1px solid #c5c5c5',
             },
         },
     },
@@ -249,6 +267,7 @@ const PAGE_SIZE_SETTING = [5, 10, 20];
 
 export const Table = ({
     api,
+    title,
     fetchTableDefinition,
     fetchTableData,
     updateTableRow,
@@ -285,6 +304,7 @@ export const Table = ({
         if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
             setStructure(structureFromProps);
             refreshData();
+            showSuccessMessage('Fetch table definition success!');
         }
     }, [fetchDefinitionState]);
 
@@ -308,6 +328,7 @@ export const Table = ({
         ) {
             setSelectedRows({});
             refreshData();
+            showSuccessMessage();
         }
     }, [updateDataState, addDataState, deleteDataState]);
 
@@ -344,7 +365,7 @@ export const Table = ({
         return [
             {
                 id: 'action',
-                name: 'Action',
+                name: '',
                 sortable: false,
                 cell: (row) => {
                     const { id } = row;
@@ -359,8 +380,8 @@ export const Table = ({
                                 onSubmit={onSubmitEditedRow}
                                 onCancel={onCancelEditing}
                             />
-                            <IconWrapper onClick={() => deleteRow(row)}>
-                                <FaTrash />
+                            <IconWrapper onClick={() => deleteRow(row)} color="#dc3544">
+                                <FaTrashAlt />
                             </IconWrapper>
                         </>
                     );
@@ -432,6 +453,20 @@ export const Table = ({
     };
 
     console.log('render table');
+
+    const showSuccessMessage = (message) => {
+        notification.success({
+            message,
+            placement: 'bottomRight',
+        });
+    };
+
+    const showErrorMessage = (message) => {
+        notification.error({
+            message,
+            placement: 'bottomRight',
+        });
+    };
 
     const refreshData = useCallback(() => {
         fetchTableData({ api, pageSize, pageIndex });
@@ -519,7 +554,8 @@ export const Table = ({
         console.log(pageSize);
         console.log(currentPage);
         setPageSize(pageSize);
-        fetchTableData({ api, pageSize, pageIndex });
+        setPageIndex(currentPage);
+        fetchTableData({ api, pageSize, pageIndex: currentPage });
     };
 
     const onChangePage = (pageIndex, totalRows) => {
@@ -529,10 +565,14 @@ export const Table = ({
         fetchTableData({ api, pageSize, pageIndex });
     };
 
-    return structure && data ? (
-        <>
+    if (loading) {
+        return <TalbeLoadingSkeleton />;
+    }
+
+    if (structure && data) {
+        return (
             <StyledDataTable
-                title="ádsdadas"
+                title={<Title>{title}</Title>}
                 striped
                 actions={
                     <TableActions
@@ -552,6 +592,7 @@ export const Table = ({
                 pagination
                 paginationServer
                 paginationPerPage={pageSize}
+                paginationDefaultPage={pageIndex}
                 paginationRowsPerPageOptions={PAGE_SIZE_SETTING}
                 paginationTotalRows={data.total}
                 onChangePage={onChangePage}
@@ -560,8 +601,10 @@ export const Table = ({
                 fixedHeader
                 fixedHeaderScrollHeight="26rem"
             />
-        </>
-    ) : null;
+        );
+    }
+
+    return null;
 };
 
 const mapStateToProps = ({

@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { Box } from 'rebass/styled-components';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { CContainer, CFade } from '@coreui/react';
 import Routing from 'routes/routes';
@@ -11,13 +12,13 @@ const loading = (
 
 const TheContent = () => {
     return (
-        <main className="c-main">
-            <CContainer fluid>
+        <Box className="c-main" pt={[1, 3]}>
+            <Box pl={[1, 3]} pr={[1, 3]}>
                 <Suspense fallback={loading}>
                     <Routing />
                 </Suspense>
-            </CContainer>
-        </main>
+            </Box>
+        </Box>
     );
 };
 

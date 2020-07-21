@@ -13,5 +13,8 @@
         "cmts": "Bình luận",
         "profile": "Chi tiết",
         "setting": "Cài đặt"
+    },
+    "userManagement": {
+        "title": "Quan ly nguoi dung"
     }
 }

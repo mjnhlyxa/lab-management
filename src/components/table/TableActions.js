@@ -1,17 +1,20 @@
 import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { Text, Box, Flex } from 'rebass';
 import { FaTrash, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
 import { IoIosRefresh } from 'react-icons/io';
-import { Popover, OverlayTrigger, Dropdown } from 'react-bootstrap';
+import { OverlayTrigger, Dropdown } from 'react-bootstrap';
+import { Button, Space, Popover } from 'antd';
 import DatePicker from 'react-datepicker';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 
 import { deleteTableRow, addTableRow, showModal, saveVisibleColumns } from 'actions/actions';
 import Input from 'components/input/Input';
-import { IconButton, Button } from 'components/button/Button';
+// import { IconButton, Button } from 'components/button/Button';
+
 import ListSelect from 'components/input/ListSelect';
 
 import { MODAL_ID } from 'utils/constants';
@@ -29,9 +32,11 @@ const TagName = styled(Box)`
     color: white;
 `;
 
-export const SettingPopover = memo(({ structure, onChangeStructure, onClose, onSave }) => {
+export const SettingPopover = memo(({ structure, onChangeStructure, setVisibility, onSave }) => {
     const [options, setOptions] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         const { fields = [] } = structure;
@@ -65,33 +70,39 @@ export const SettingPopover = memo(({ structure, onChangeStructure, onClose, onS
             fields: newFields,
         };
         onChangeStructure(newStruct, false);
+        setVisibility(false);
     };
 
     const saveChange = () => {
-        onSave({show_fields: selectedOptions.join(',')});
-        applyChange()
+        onSave({ show_fields: selectedOptions.join(',') });
+        applyChange();
+        setVisibility(false);
+    };
+
+    const onClose = () => {
+        setVisibility(false);
     };
 
     return (
         <Box>
             {options.length && <ListSelect items={options} selected={selectedOptions} onChange={onChangeSelection} />}
             <Box>
-                <Button onClick={applyChange}>Apply</Button>
-                <Button onClick={saveChange}>Save</Button>
-                <Button onClick={onClose}>Cancel</Button>
+                <Button onClick={applyChange}>{t('common.button.label.apply')}</Button>
+                <Button onClick={saveChange}>{t('common.button.label.save')}</Button>
+                <Button onClick={onClose}>{t('common.button.label.cancel')}</Button>
             </Box>
         </Box>
     );
 });
 
-export const getPopover = (structure, onChangeStructure, saveColumnsSetting) => (
-    <Popover>
-        <Popover.Title as="h3">Select columns to show:</Popover.Title>
-        <Popover.Content>
-            <SettingPopover structure={structure} onChangeStructure={onChangeStructure} onSave={saveColumnsSetting} />
-        </Popover.Content>
-    </Popover>
-);
+// export const getPopover = (structure, onChangeStructure, saveColumnsSetting, title) => (
+//     <Popover>
+//         <Popover.Title as="h3">{title}</Popover.Title>
+//         <Popover.Content>
+//             <SettingPopover structure={structure} onChangeStructure={onChangeStructure} onSave={saveColumnsSetting} />
+//         </Popover.Content>
+//     </Popover>
+// );
 
 export const Filtered = memo(({ filterColumn, onDiscard }) => {
     return (
@@ -106,6 +117,10 @@ export const Filtered = memo(({ filterColumn, onDiscard }) => {
         </>
     );
 });
+
+const popoverStyles = {
+    background: 'red',
+};
 
 export const TableActions = memo(
     ({
@@ -122,6 +137,9 @@ export const TableActions = memo(
         onChangeStructure,
         saveVisibleColumns,
     }) => {
+        const [showPopover, setShowPopover] = useState(false);
+
+        const { t } = useTranslation();
         const onCreateData = () => {
             showModal({
                 id: MODAL_ID.CREATE_TABLE_DATA_MODAL,
@@ -145,32 +163,38 @@ export const TableActions = memo(
             }
         };
 
-        const showTableSetting = () => {};
-
         const saveColumnsSetting = (data) => {
             saveVisibleColumns({ api, data });
         };
 
+        const handlePopoverVisibleChange = (visible) => {
+            setShowPopover(visible);
+        };
+
         return (
             <Flex flexDirection="row">
-                <IconButton>
-                    <IoIosRefresh onClick={refreshData} />
-                </IconButton>
-                <IconButton>
-                    <FaPlus onClick={onCreateData} />
-                </IconButton>
-                <IconButton disabled={!isSelecting()} onClick={deleteSelectedRow}>
-                    <FaTrash />
-                </IconButton>
-                <OverlayTrigger
-                    trigger="click"
-                    placement="auto"
-                    overlay={getPopover(structure, onChangeStructure, saveColumnsSetting)}
-                    rootClose>
-                    <IconButton onClick={showTableSetting}>
-                        <FaCog />
-                    </IconButton>
-                </OverlayTrigger>
+                <Space>
+                    <Button type="primary" onClick={refreshData} icon={<IoIosRefresh />} />
+                    <Button type="primary" onClick={onCreateData} icon={<FaPlus />} />
+                    <Button type="primary" onClick={deleteSelectedRow} disabled={!isSelecting()} icon={<FaTrash />} />
+                    <Popover
+                        content={
+                            <SettingPopover
+                                setVisibility={setShowPopover}
+                                structure={structure}
+                                onChangeStructure={onChangeStructure}
+                                onSave={saveColumnsSetting}
+                            />
+                        }
+                        title={t('components.table.filterdBy')}
+                        trigger="click"
+                        visible={showPopover}
+                        onVisibleChange={handlePopoverVisibleChange}
+                        placement="leftTop"
+                        autoAdjustOverflow>
+                        <Button type="primary" icon={<FaCog />} />
+                    </Popover>
+                </Space>
                 {filterColumn && <Filtered filterColumn={filterColumn} onDiscard={onDiscardFilter} />}
             </Flex>
         );

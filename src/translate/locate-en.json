@@ -3,7 +3,10 @@
         "button": {
             "label": {
                 "from": "From",
-                "to": "To"
+                "to": "To",
+                "apply": "Apply",
+                "save": "Save",
+                "cancel": "Cancel"
             }
         }
     },
@@ -23,5 +26,13 @@
         "cmts": "Comments",
         "profile": "Profile",
         "setting": "Settings"
+    },
+    "components": {
+        "table": {
+            "filterdBy": "Filterd by:"
+        }
+    },
+    "userManagement": {
+        "title": "User management"
     }
 }

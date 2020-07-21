@@ -40,10 +40,9 @@ export const UserManagement = ({
     //         setData(users);
     //     }
     // }, [getAllUsersState]);
+    const { t } = useTranslation();
 
-    return (
-        <Table api="http://cenlab.nlsoft.vn/api/form/user/roles" />
-    );
+    return <Table api="http://cenlab.nlsoft.vn/api/form/user/roles" title={t('userManagement.title')} />;
 };
 
 const mapStateToProps = ({ users: { loading, getDefinitionState, definition, getAllUsersState, users } }) => ({
