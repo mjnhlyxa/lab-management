@@ -81,6 +81,11 @@ const TheSidebar = ({ t, setSideBar }) => {
                         name: t('sideBar.menu.user'),
                         to: '/users',
                     },
+                    {
+                        _tag: 'CSidebarNavItem',
+                        name: t('sideBar.menu.role'),
+                        to: '/roles',
+                    },
                 ],
             },
         ]);

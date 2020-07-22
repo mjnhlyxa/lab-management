@@ -67,7 +67,9 @@
     "react-scripts": "^3.4.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run start-prod",
+    "start-dev": "node -r dotenv/config ./node_modules/react-scripts/scripts/start.js dotenv_config_path=.env.dev",
+    "start-prod": "(timeout 2 || sleep 2) && node -r dotenv/config ./node_modules/react-scripts/scripts/start.js dotenv_config_path=.env.prod",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:cov": "npm test -- --coverage --watchAll=false",

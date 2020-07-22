@@ -269,6 +269,7 @@ const PAGE_SIZE = 5;
 const PAGE_SIZE_SETTING = [5, 10, 20];
 
 export const Table = ({
+    id,
     api,
     title,
     fetchTableDefinition,
@@ -288,8 +289,8 @@ export const Table = ({
     showModal,
     sortByColumn,
 }) => {
-    const [structure, setStructure] = useState(structureFromProps);
-    const [data, setData] = useState(dataFromProps);
+    const [structure, setStructure] = useState(structureFromProps[id]);
+    const [data, setData] = useState(dataFromProps[id]);
     const [editingRow, setEditRow] = useState(-1);
     const [columns, setColumns] = useState([]);
     const [rowData, setRowData] = useState({});
@@ -300,20 +301,20 @@ export const Table = ({
     const [sortColumn, setSortColumn] = useState({});
 
     useEffect(() => {
-        fetchTableDefinition(api);
+        fetchTableDefinition({ api, id });
     }, []);
 
     useEffect(() => {
-        if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
-            setStructure(structureFromProps);
+        // if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
+            setStructure(structureFromProps[id]);
             refreshData();
             showSuccessMessage('Fetch table definition success!');
-        }
-    }, [fetchDefinitionState]);
+        // }
+    }, [structureFromProps]);
 
     useEffect(() => {
         if (fetchDataState === RESPONSE_STATE.SUCCESSS || searchState === RESPONSE_STATE.SUCCESSS) {
-            setData(dataFromProps);
+            setData(dataFromProps[id]);
         }
     }, [fetchDataState, searchState]);
 
@@ -472,7 +473,7 @@ export const Table = ({
     };
 
     const refreshData = useCallback(() => {
-        fetchTableData({ api, pageSize, pageIndex });
+        fetchTableData({ id, api, pageSize, pageIndex });
     }, [pageSize, pageIndex]);
 
     const onSelectionRow = (row) => {
@@ -490,7 +491,7 @@ export const Table = ({
 
     const onSubmitEditedRow = useCallback(() => {
         setRowData((data) => {
-            updateTableRow({ api, data });
+            updateTableRow({ id, api, data });
             return data;
         });
         setEditRow(-1);
@@ -558,14 +559,14 @@ export const Table = ({
         console.log(currentPage);
         setPageSize(pageSize);
         setPageIndex(currentPage);
-        fetchTableData({ api, pageSize, pageIndex: currentPage });
+        fetchTableData({ id, api, pageSize, pageIndex: currentPage });
     };
 
     const onChangePage = (pageIndex, totalRows) => {
         console.log(pageIndex);
         console.log(totalRows);
         setPageIndex(pageIndex);
-        fetchTableData({ api, pageSize, pageIndex });
+        fetchTableData({ id, api, pageSize, pageIndex });
     };
 
     if (loading) {
@@ -573,12 +574,14 @@ export const Table = ({
     }
 
     if (structure && data) {
+        console.log('done')
         return (
             <StyledDataTable
                 title={<Title>{title}</Title>}
                 striped
                 actions={
                     <TableActions
+                        id={id}
                         api={api}
                         structure={structure}
                         list={data.list}
@@ -622,17 +625,19 @@ const mapStateToProps = ({
         searchState,
         deleteDataState,
     },
-}) => ({
-    loading,
-    structure,
-    data,
-    fetchDefinitionState,
-    fetchDataState,
-    updateDataState,
-    addDataState,
-    searchState,
-    deleteDataState,
-});
+}) => {
+    return {
+        loading,
+        structure,
+        data,
+        fetchDefinitionState,
+        fetchDataState,
+        updateDataState,
+        addDataState,
+        searchState,
+        deleteDataState,
+    };
+};
 
 const mapDispatchToProps = {
     fetchTableDefinition,

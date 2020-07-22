@@ -42,7 +42,14 @@ export const UserManagement = ({
     // }, [getAllUsersState]);
     const { t } = useTranslation();
 
-    return <Table api="http://cenlab.nlsoft.vn/api/form/user/roles" title={t('userManagement.title')} />;
+    return (
+        <>
+            <Table id="table1" api="http://cenlab.nlsoft.vn/api/form/user/roles" title={t('userManagement.title')} />
+            {/* <Table key={123} id="table1" api="http://localhost:3001/test" title={t('userManagement.title')} />
+            <Table key={232} id="table2" api="http://localhost:3001/test1" title={t('userManagement.title')} /> */}
+            {/* <Table id="table2" api="http://cenlab.nlsoft.vn/api/form/user/permissions" title="qqq" /> */}
+        </>
+    );
 };
 
 const mapStateToProps = ({ users: { loading, getDefinitionState, definition, getAllUsersState, users } }) => ({

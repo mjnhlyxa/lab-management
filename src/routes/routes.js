@@ -8,12 +8,14 @@ import Modal from 'components/modal/Modal';
 const Test = React.lazy(() => import('pages/Test/Test'));
 const Dashboard = React.lazy(() => import('views/dashboard/Dashboard'));
 const UserManagement = React.lazy(() => import('pages/users/UserManagement'));
+const RoleManagement = React.lazy(() => import('pages/roles/RoleManagement'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
     { path: '/dashboard', name: 'Dashboard', component: Dashboard },
     { path: '/test', exact: true, name: 'Test', component: Test },
     { path: '/users', exact: true, name: 'User Management', component: UserManagement },
+    { path: '/roles', exact: true, name: 'Roles Management', component: RoleManagement },
 ];
 
 export const Routing = () => (

@@ -31,8 +31,8 @@ import data from 'pages/Test/data.json';
 
 const initialState = {
     loading: false,
-    structure: undefined,
-    data: undefined,
+    structure: {},
+    data: {},
     fetchDefinitionState: RESPONSE_STATE.WAITING,
     fetchDataState: RESPONSE_STATE.WAITING,
     updateDataState: RESPONSE_STATE.WAITING,
@@ -44,38 +44,40 @@ const initialState = {
 const actions = {
     [FETCH_TABLE_DEFINITION]: (state) => ({
         ...state,
-        structure: undefined,
         loading: true,
         fetchDefinitionState: RESPONSE_STATE.WAITING,
     }),
-    [FETCH_TABLE_DEFINITION_SUCCESS]: (state, { payload }) => ({
-        ...state,
-        loading: true,
-        structure: payload,
-        fetchDefinitionState: RESPONSE_STATE.SUCCESSS,
-    }),
+    [FETCH_TABLE_DEFINITION_SUCCESS]: ({ structure, ...rest }, { payload }) => {
+        const x = { ...structure, ...payload };
+        console.log(x);
+        return {
+            ...rest,
+            loading: true,
+            structure: x,
+            fetchDefinitionState: RESPONSE_STATE.SUCCESSS,
+        };
+    },
     [FETCH_TABLE_DEFINITION_FAILED]: (state) => ({
         ...state,
         loading: false,
-        structure: undefined,
         fetchDefinitionState: RESPONSE_STATE.FAILED,
     }),
     [FETCH_TABLE_DATA]: (state) => ({
         ...state,
-        data: undefined,
         loading: true,
         fetchDataState: RESPONSE_STATE.WAITING,
     }),
-    [FETCH_TABLE_DATA_SUCCESS]: (state, { payload }) => ({
-        ...state,
-        data: payload,
-        loading: false,
-        fetchDataState: RESPONSE_STATE.SUCCESSS,
-    }),
+    [FETCH_TABLE_DATA_SUCCESS]: ({ data, ...rest }, { payload }) => {
+        return {
+            ...rest,
+            data: { ...data, ...payload },
+            loading: false,
+            fetchDataState: RESPONSE_STATE.SUCCESSS,
+        };
+    },
     [FETCH_TABLE_DATA_FAILED]: (state) => ({
         ...state,
         loading: false,
-        data: undefined,
         fetchDataState: RESPONSE_STATE.FAILED,
     }),
     [UPDATE_TABLE_ROW]: (state) => ({
@@ -98,10 +100,10 @@ const actions = {
         loading: true,
         searchState: RESPONSE_STATE.WAITING,
     }),
-    [SEARCH_IN_TABLE_SUCCESS]: (state, { payload }) => ({
-        ...state,
+    [SEARCH_IN_TABLE_SUCCESS]: ({ data, ...rest }, { payload }) => ({
+        ...rest,
         loading: false,
-        data: payload,
+        data: { ...data, ...payload },
         searchState: RESPONSE_STATE.SUCCESSS,
     }),
     [SEARCH_IN_TABLE_FAILED]: (state) => ({
@@ -144,10 +146,10 @@ const actions = {
         loading: true,
         fetchDataState: RESPONSE_STATE.WAITING,
     }),
-    [SORT_BY_COLUMN_SUCCESS]: (state, { payload }) => ({
-        ...state,
+    [SORT_BY_COLUMN_SUCCESS]: ({ data, ...rest }, { payload }) => ({
+        ...rest,
         loading: false,
-        data: payload,
+        data: { ...data, ...payload },
         fetchDataState: RESPONSE_STATE.SUCCESSS,
     }),
     [SORT_BY_COLUMN_FAILED]: (state) => ({

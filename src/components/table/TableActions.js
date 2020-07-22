@@ -122,6 +122,7 @@ const popoverStyles = {
 
 export const TableActions = memo(
     ({
+        id,
         api,
         structure,
         list,
@@ -143,6 +144,7 @@ export const TableActions = memo(
                 id: MODAL_ID.CREATE_TABLE_DATA_MODAL,
                 render: CreateTableRowModal,
                 data: {
+                    id,
                     api,
                     fields: structure.fields,
                     list,
@@ -157,12 +159,12 @@ export const TableActions = memo(
 
         const deleteSelectedRow = () => {
             if (isSelecting()) {
-                deleteTableRow({ api, data: Object.values(selectedRows) });
+                deleteTableRow({ id, api, data: Object.values(selectedRows) });
             }
         };
 
         const saveColumnsSetting = (data) => {
-            saveVisibleColumns({ api, data });
+            saveVisibleColumns({ id, api, data });
         };
 
         const handlePopoverVisibleChange = (visible) => {

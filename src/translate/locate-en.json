@@ -16,7 +16,8 @@
             "positionMgnt": "Position Management",
             "customerMgnt": "Customer Management",
             "userMgnt": "User Management",
-            "user": "Users"
+            "user": "Users",
+            "role": "Roles"
         }
     },
     "settings": {

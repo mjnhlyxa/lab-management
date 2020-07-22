@@ -34,10 +34,10 @@ import {
 export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition }) =>
     action$.pipe(
         ofType(FETCH_TABLE_DEFINITION),
-        mergeMap(({ payload: api }) =>
+        mergeMap(({ payload: { api, id } }) =>
             fetchTableDefinition(api).pipe(
                 map((res) => {
-                    return fetchTableDefinitionSuccess(res.data);
+                    return fetchTableDefinitionSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(fetchTableDefinitionFailed())),
             ),
@@ -47,10 +47,10 @@ export const fetchTableDefinitionEpic = (action$, store, { fetchTableDefinition 
 export const fetchTableDataEpic = (action$, store, { fetchTableData }) =>
     action$.pipe(
         ofType(FETCH_TABLE_DATA),
-        mergeMap(({ payload }) =>
-            fetchTableData(payload).pipe(
+        mergeMap(({ payload: { id, ...rest } }) =>
+            fetchTableData(rest).pipe(
                 map((res) => {
-                    return fetchTableDataSuccess(res.data);
+                    return fetchTableDataSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(fetchTableDataFailed())),
             ),
@@ -60,10 +60,10 @@ export const fetchTableDataEpic = (action$, store, { fetchTableData }) =>
 export const updateTableRowEpic = (action$, store, { updateTableRow }) =>
     action$.pipe(
         ofType(UPDATE_TABLE_ROW),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: { id, api, data } }) =>
             updateTableRow(api, data).pipe(
                 map((res) => {
-                    return updateTableRowSuccess(res.data);
+                    return updateTableRowSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(updateTableRowFailed())),
             ),
@@ -73,7 +73,7 @@ export const updateTableRowEpic = (action$, store, { updateTableRow }) =>
 export const deleteTableRowEpic = (action$, store, { deleteTableRow }) =>
     action$.pipe(
         ofType(DELETE_TABLE_ROW),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: { id, api, data } }) =>
             deleteTableRow(api, data).pipe(
                 map((res) => {
                     return deleteTableRowSuccess();
@@ -86,10 +86,10 @@ export const deleteTableRowEpic = (action$, store, { deleteTableRow }) =>
 export const searchInTableEpic = (action$, store, { searchInTable }) =>
     action$.pipe(
         ofType(SEARCH_IN_TABLE),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: { id, api, data } }) =>
             searchInTable(api, data).pipe(
                 map((res) => {
-                    return searchInTableSuccess(res.data);
+                    return searchInTableSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(searchInTableFailed())),
             ),
@@ -99,10 +99,10 @@ export const searchInTableEpic = (action$, store, { searchInTable }) =>
 export const addTableRowEpic = (action$, store, { addTableRow }) =>
     action$.pipe(
         ofType(ADD_TABLE_ROW),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: {id, api, data } }) =>
             addTableRow(api, data).pipe(
                 map((res) => {
-                    return addTableRowSuccess(res.data);
+                    return addTableRowSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(addTableRowFailed())),
             ),
@@ -112,7 +112,7 @@ export const addTableRowEpic = (action$, store, { addTableRow }) =>
 export const saveVisibleColumnsEpic = (action$, store, { saveVisibleColumns }) =>
     action$.pipe(
         ofType(SAVE_VISIBLE_COLUMNS),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: { id, api, data } }) =>
             saveVisibleColumns(api, data).pipe(
                 map((res) => {
                     return saveVisibleColumnsSuccess(res.data);
@@ -124,10 +124,10 @@ export const saveVisibleColumnsEpic = (action$, store, { saveVisibleColumns }) =
 export const sortByColumnEpic = (action$, store, { sortColumn }) =>
     action$.pipe(
         ofType(SORT_BY_COLUMN),
-        mergeMap(({ payload: { api, data } }) =>
+        mergeMap(({ payload: { id, api, data } }) =>
             sortColumn(api, data).pipe(
                 map((res) => {
-                    return sortByColumnSuccess(res.data);
+                    return sortByColumnSuccess({ [id]: res.data });
                 }),
                 catchError((error) => of(sortByColumnFailed())),
             ),

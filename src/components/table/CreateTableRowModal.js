@@ -21,7 +21,7 @@ export const CreateTableRowModal = ({
     Header,
     Body,
     Footer,
-    data: { api, fields, list = {}, addTableRow },
+    data: { id, api, fields, list = {}, addTableRow },
     onHide,
 }) => {
     const [data, setData] = useState({});
@@ -33,7 +33,7 @@ export const CreateTableRowModal = ({
     });
 
     const onSubmit = () => {
-        addTableRow({ api, data });
+        addTableRow({ id, api, data });
         onHide();
     };
 
