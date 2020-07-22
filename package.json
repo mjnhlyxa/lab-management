@@ -15,7 +15,7 @@
       "url": "https://github.com/orgs/coreui/people"
     }
   ],
-  "homepage": "/",
+  "homepage": "http://mjnhlyxa.github.io/laboratory-manager",
   "copyright": "Copyright 2017-2020 creativeLabs Łukasz Holeczek",
   "license": "MIT",
   "private": true,
@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "eslint-plugin-import": "^2.22.0",
+    "gh-pages": "^3.1.0",
     "react-scripts": "^3.4.1"
   },
   "scripts": {
@@ -75,7 +76,9 @@
     "test": "react-scripts test",
     "test:cov": "npm test -- --coverage --watchAll=false",
     "test:debug": "react-scripts --inspect-brk test --runInBand",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
