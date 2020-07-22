@@ -1,0 +1,2 @@
+(this["webpackJsonp@coreui/coreui-free-react-admin-template"]=this["webpackJsonp@coreui/coreui-free-react-admin-template"]||[]).push([[6],{1005:function(e,t,r){"use strict";r.r(t),r.d(t,"Test",(function(){return l}));var n=r(1),a=r.n(n),i=r(212),u=(r(206),r(1001),r(42),r(223),r(226),r(466)),c=r(465),s=r(22),o=(r(9),r(869)),l=function(e){e.login;return a.a.createElement(o.b,{api:"http://myslim.nlsoft.vn/api/form/user/users",structure:c,data:u.data})},p={login:s.t};t.default=Object(i.b)(null,p)(l)}}]);
+//# sourceMappingURL=6.33c29233.chunk.js.map
