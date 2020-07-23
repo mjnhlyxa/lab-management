@@ -1,3 +1,5 @@
+export const API_URL = 'https://test-webview-sa.herokuapp.com';
+
 export const FIELD_TYPE = {
     STRING: 0,
     FLOAT: 1,
@@ -37,8 +39,8 @@ export const FILTER_ID = {
 export const SORT_TYPE = {
     ESC: 0,
     DES: 1,
-}
+};
 
 export const MODAL_ID = {
     CREATE_TABLE_DATA_MODAL: 'CREATE_TABLE_DATA_MODAL',
-}
+};

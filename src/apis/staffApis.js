@@ -4,6 +4,7 @@ import axios from 'axios';
 import forOwn from 'lodash/forOwn';
 import forEach from 'lodash/forEach';
 import isObject from 'lodash/isObject';
+import { API_URL } from 'utils/constants';
 
 axios.defaults.withCredentials = true;
 
@@ -28,7 +29,7 @@ export const mappingDataFields = (define, list) => {
     return formData;
 };
 
-export const login = (data) => from(axios.post('http://cenlab.nlsoft.vn/api/login', toFromData(data)));
+export const login = (data) => from(axios.post(`${API_URL}/api/login`, toFromData(data)));
 
 export const getUserDefinition = () =>
     from(axios.post('http://myslim.nlsoft.vn/api/form/user/users', toFromData({ __action__: 'define' })));
@@ -43,7 +44,8 @@ export const getAllUsers1 = () =>
 
 export const fetchTableDefinition = (api) => from(axios.post(api, toFromData({ __action__: 'define' })));
 
-export const fetchTableData = ({ api, ...rest }) => from(axios.post(`${api}_data`, toFromData({ __action__: 'data', ...rest })));
+export const fetchTableData = ({ api, ...rest }) =>
+    from(axios.post(`${api}_data`, toFromData({ __action__: 'data', ...rest })));
 
 export const updateTableRow = (api, data) => {
     return from(axios.post(api, mappingDataFields({ __action__: 'update' }, data)));
