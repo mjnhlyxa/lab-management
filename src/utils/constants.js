@@ -1,4 +1,5 @@
 export const API_URL = 'https://test-webview-sa.herokuapp.com';
+// export const API_URL = 'http://myslim.nlsoft.vn';
 
 export const FIELD_TYPE = {
     STRING: 0,

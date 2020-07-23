@@ -10,8 +10,9 @@ import forEach from 'lodash/forEach';
 import dataJ from 'pages/Test/data.json';
 import columnsJ from 'pages/Test/columns.json';
 import { getUserDefinition, getAllUsers } from 'actions/actions';
-import { LANGUAGE_SUPPORTED, RESPONSE_STATE } from 'utils/constants';
+import { LANGUAGE_SUPPORTED, RESPONSE_STATE, API_URL } from 'utils/constants';
 import Table from 'components/table/Table';
+
 
 export const UserManagement = ({
     loading,
@@ -44,7 +45,7 @@ export const UserManagement = ({
 
     return (
         <>
-            <Table id="table1" api="http://cenlab.nlsoft.vn/api/common/form/general/users" title={t('userManagement.title')} />
+            <Table id="table1" api={`${API_URL}/api/common/form/general/users`} title={t('userManagement.title')} />
             {/* <Table key={123} id="table1" api="http://localhost:3001/test" title={t('userManagement.title')} />
             <Table key={232} id="table2" api="http://localhost:3001/test1" title={t('userManagement.title')} /> */}
             {/* <Table id="table2" api="http://cenlab.nlsoft.vn/api/form/user/permissions" title="qqq" /> */}

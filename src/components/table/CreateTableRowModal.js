@@ -18,9 +18,9 @@ const FooterButton = styled(Box).attrs(() => ({
 `;
 
 export const CreateTableRowModal = ({
-    Header,
-    Body,
-    Footer,
+    // Header,
+    // Body,
+    // Footer,
     data: { id, api, fields, list = {}, addTableRow },
     onHide,
 }) => {
@@ -39,7 +39,28 @@ export const CreateTableRowModal = ({
 
     return (
         <>
-            <Header>
+            <Flex flexDirection="column">
+                {fields.map((field) => {
+                    const { type, name, caption, update, required, choices, listName } = field;
+                    const multichoices = Boolean(choices && listName);
+                    return update ? (
+                        <Flex key={name} flexDirection="row" m={2}>
+                            <Text as="p" width="6rem" fontWeight="bold">
+                                {caption}
+                                {required ? '*' : ''}
+                            </Text>
+                            <Field
+                                type={type}
+                                onChange={(e) => onInputChange(e, name)}
+                                list={list[listName]}
+                                multichoices={multichoices}
+                                height="2rem"
+                            />
+                        </Flex>
+                    ) : null;
+                })}
+            </Flex>
+            {/* <Header>
                 <Text as="p">Add new record</Text>
             </Header>
             <Body>
@@ -74,7 +95,7 @@ export const CreateTableRowModal = ({
                         CANCEL
                     </FooterButton>
                 </Flex>
-            </Footer>
+            </Footer> */}
         </>
     );
 };

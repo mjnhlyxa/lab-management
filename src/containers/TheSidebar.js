@@ -12,7 +12,7 @@ import {
     CSidebarNavDropdown,
     CSidebarNavItem,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react'
+import CIcon from '@coreui/icons-react';
 import styled from 'styled-components';
 import { Text } from 'rebass';
 import { FaFlask } from 'react-icons/fa';
@@ -66,9 +66,21 @@ const TheSidebar = ({ t, setSideBar }) => {
             },
             {
                 _tag: 'CSidebarNavDropdown',
-                name: t('sideBar.menu.customerMgnt'),
+                name: t('sideBar.menu.systemMgnt'),
                 route: '/base',
                 icon: 'cil-cursor',
+                _children: [
+                    {
+                        _tag: 'CSidebarNavItem',
+                        name: t('sideBar.menu.laboratoryMngt'),
+                        to: '/laboratoryMngt',
+                    },
+                    {
+                        _tag: 'CSidebarNavItem',
+                        name: t('sideBar.menu.location'),
+                        to: '/location',
+                    },
+                ],
             },
             {
                 _tag: 'CSidebarNavDropdown',

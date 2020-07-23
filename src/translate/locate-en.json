@@ -15,9 +15,12 @@
             "hrManagement": "HR Management",
             "positionMgnt": "Position Management",
             "customerMgnt": "Customer Management",
+            "systemMgnt": "System Management",
+            "laboratoryMngt": "Laboratory Management",
             "userMgnt": "User Management",
             "user": "Users",
-            "role": "Roles"
+            "role": "Roles",
+            "location": "Locations"
         }
     },
     "settings": {
@@ -59,6 +62,50 @@
         "module": {
             "name": "Modules",
             "title": "Modules management"
+        }
+    },
+    "locationManagement": {
+        "country": {
+            "name": "Country",
+            "title": "Country management"
+        },
+        "province": {
+            "name": "Province",
+            "title": "Province management"
+        },
+        "district": {
+            "name": "District",
+            "title": "District management"
+        },
+        "ward": {
+            "name": "Ward",
+            "title": "Ward management"
+        }
+    },
+    "laboratoryMngt": {
+        "compound": {
+            "name": "Compound",
+            "title": "Compound management"
+        },
+        "analyte": {
+            "name": "Analyte",
+            "title": "Analyte management"
+        },
+        "boa": {
+            "name": "BOA",
+            "title": "BOA management"
+        },
+        "matrix": {
+            "name": "Matrix",
+            "title": "Matrix management"
+        },
+        "technical": {
+            "name": "Technical",
+            "title": "Technical management"
+        },
+        "unit": {
+            "name": "Unit",
+            "title": "Unit management"
         }
     }
 }
