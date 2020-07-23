@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import DataTable from 'react-data-table-component';
 import { Text, Box, Flex } from 'rebass';
-import { notification, Tag, Button, Popover } from 'antd';
+import { notification, Tag, Button, Popover, Select } from 'antd';
 import { FaSort, FaPencilAlt, FaBan, FaTrashAlt, FaCheck, FaFilter, FaTimes, FaPlus, FaCog } from 'react-icons/fa';
 import { IoIosRefresh } from 'react-icons/io';
 import DatePicker from 'react-datepicker';
@@ -23,6 +23,7 @@ import {
 import Input from 'components/input/Input';
 import { IconButton } from 'components/button/Button';
 import ListSelect from 'components/input/ListSelect';
+import Selectbox from 'components/input/Selectbox';
 import TableActions from 'components/table/TableActions';
 import TalbeLoadingSkeleton from 'components/table/TalbeLoadingSkeleton';
 import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE, SORT_TYPE } from 'utils/constants';
@@ -58,42 +59,54 @@ const Title = styled(Text)`
     width: fit-content;
 `;
 
-export const Field = memo(({ type, value: initValue, onChange, list, multichoices, height = '1.6rem' }) => {
-    const [val, setVal] = useState(initValue);
-    const change = (e) => {
-        const value = get(e, 'target.value', e);
-        setVal(value);
-        onChange(value);
-    };
+export const Field = memo(
+    ({ type, value: initValue, onChange, list, multichoices, isRawData, listValues, height = '1.6rem' }) => {
+        const [val, setVal] = useState(initValue);
+        const change = (e) => {
+            const value = get(e, 'target.value', e);
+            setVal(value);
+            onChange(value);
+        };
 
-    if (multichoices) {
-        return <ListSelect items={list} selected={initValue} onChange={onChange} />;
-        // const mappingFields = list[listName];
-    }
+        if (isRawData) {
+            return (
+                <Selectbox
+                    options={listValues.map(([id, value]) => ({ id, value }))}
+                    defaultValue={initValue}
+                    onChange={onChange}
+                />
+            );
+        }
 
-    switch (type) {
-        case FIELD_TYPE.STRING:
-            return <Input type="text" value={val} onChange={change} height={height} />;
-        case FIELD_TYPE.FLOAT:
-            return <Input type="number" value={val} onChange={change} height={height} />;
-        case FIELD_TYPE.INT:
-            return <Input type="number" value={val} onChange={change} height={height} />;
-        case FIELD_TYPE.TEXT:
-            return <Input type="text" value={val} onChange={change} height={height} />;
-        case FIELD_TYPE.BOOLEAN:
-            return <Input type="checkbox" checked={val} onChange={change} height={height} />;
-        case FIELD_TYPE.DATE:
-            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
-        case FIELD_TYPE.TIME:
-            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
-        case FIELD_TYPE.DATETIME:
-            return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
-        case FIELD_TYPE.FILE:
-            return <Input type="text" value={val} onChange={change} height={height} />;
-        case FIELD_TYPE.PASSWORD:
-            return <Input type="password" value={val} onChange={change} height={height} />;
-    }
-});
+        if (multichoices) {
+            return <ListSelect items={list} selected={initValue} onChange={onChange} />;
+            // const mappingFields = list[listName];
+        }
+
+        switch (type) {
+            case FIELD_TYPE.STRING:
+                return <Input type="text" value={val} onChange={change} height={height} />;
+            case FIELD_TYPE.FLOAT:
+                return <Input type="number" value={val} onChange={change} height={height} />;
+            case FIELD_TYPE.INT:
+                return <Input type="number" value={val} onChange={change} height={height} />;
+            case FIELD_TYPE.TEXT:
+                return <Input type="text" value={val} onChange={change} height={height} />;
+            case FIELD_TYPE.BOOLEAN:
+                return <Input type="checkbox" checked={val} onChange={change} height={height} />;
+            case FIELD_TYPE.DATE:
+                return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
+            case FIELD_TYPE.TIME:
+                return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
+            case FIELD_TYPE.DATETIME:
+                return <DatePicker selected={val ? new Date(val) : new Date()} onChange={change} />;
+            case FIELD_TYPE.FILE:
+                return <Input type="text" value={val} onChange={change} height={height} />;
+            case FIELD_TYPE.PASSWORD:
+                return <Input type="password" value={val} onChange={change} height={height} />;
+        }
+    },
+);
 
 const FilterWrapper = styled(Box).attrs(() => ({
     p: 0,
@@ -305,12 +318,13 @@ export const Table = ({
     }, []);
 
     useEffect(() => {
-        // if (fetchDefinitionState === RESPONSE_STATE.SUCCESSS) {
+        if (structureFromProps[id]) {
             setStructure(structureFromProps[id]);
             refreshData();
+            console.log(111);
             showSuccessMessage('Fetch table definition success!');
-        // }
-    }, [structureFromProps]);
+        }
+    }, [structureFromProps[id]]);
 
     useEffect(() => {
         if (fetchDataState === RESPONSE_STATE.SUCCESSS || searchState === RESPONSE_STATE.SUCCESSS) {
@@ -397,8 +411,9 @@ export const Table = ({
     const getColumns = () => {
         const { fields = [] } = structure;
         const columns = [];
-        fields.forEach(({ type, name, caption, sortable, choices, listName, editable, show }) => {
+        fields.forEach(({ type, name, caption, sortable, choices, listName, editable, show, listValues }) => {
             const isMultichoices = Boolean(listName && choices);
+            const isRawData = listValues && listValues.length > 0;
             const list = get(data, 'list', {})[listName];
             if (!show) {
                 return;
@@ -417,7 +432,7 @@ export const Table = ({
                         onSort={onColumnSort}
                     />
                 ),
-                grow: estimateColumnWidth(type, isMultichoices),
+                // grow: estimateColumnWidth(type, isMultichoices),
                 sortable: false,
                 selector: name,
                 cell: (row) => {
@@ -432,8 +447,16 @@ export const Table = ({
                                 onChange={(e) => onRowValueChange(e, row, name)}
                                 list={data.list[listName]}
                                 multichoices={isMultichoices}
+                                isRawData={isRawData}
+                                listValues={listValues}
                             />
                         );
+                    }
+                    if (type === FIELD_TYPE.BOOLEAN) {
+                        return <Text>{value ? 'Yes' : 'No'}</Text>;
+                    }
+                    if (isRawData) {
+                        return <Text>{searchIdInList(listValues, value).text}</Text>;
                     }
                     if (isMultichoices) {
                         return (
@@ -502,7 +525,7 @@ export const Table = ({
     }, []);
 
     const deleteRow = (data) => {
-        deleteTableRow({ api, data });
+        deleteTableRow({ id, api, data });
     };
 
     const onRowValueChange = (e, row, fieldName) => {
@@ -525,7 +548,7 @@ export const Table = ({
                 pageIndex,
                 sortInfo: JSON.stringify([{ name: name, type: sortType }]),
             };
-            sortByColumn({ api, data: payload });
+            sortByColumn({ id, api, data: payload });
             return { [name]: sortType };
         });
     };
@@ -538,7 +561,7 @@ export const Table = ({
         };
         console.log(payload);
         setFilterColumn(Object.keys(filter)[0]);
-        searchInTable({ api, data: payload });
+        searchInTable({ id, api, data: payload });
     };
 
     const onDiscardFilter = useCallback(() => {
@@ -574,7 +597,7 @@ export const Table = ({
     }
 
     if (structure && data) {
-        console.log('done')
+        console.log('done');
         return (
             <StyledDataTable
                 title={<Title>{title}</Title>}
@@ -605,7 +628,7 @@ export const Table = ({
                 onChangeRowsPerPage={onChangeRowsPerPage}
                 customStyles={customStyles}
                 fixedHeader
-                fixedHeaderScrollHeight="26rem"
+                fixedHeaderScrollHeight="30rem"
             />
         );
     }

@@ -38,5 +38,27 @@
     },
     "userManagement": {
         "title": "User management"
+    },
+    "roleManagement": {
+        "permission": {
+            "name": "Permissions",
+            "title": "Permissions management"
+        },
+        "role": {
+            "name": "Roles",
+            "title": "Roles management"
+        },
+        "api": {
+            "name": "APIs",
+            "title": "APIs management"
+        },
+        "menuGroup": {
+            "name": "Menu groups",
+            "title": "Menu management"
+        },
+        "module": {
+            "name": "Modules",
+            "title": "Modules management"
+        }
     }
 }

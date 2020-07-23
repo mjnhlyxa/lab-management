@@ -44,8 +44,8 @@ export const getAllUsers1 = () =>
 
 export const fetchTableDefinition = (api) => from(axios.post(api, toFromData({ __action__: 'define' })));
 
-export const fetchTableData = ({ api, ...rest }) =>
     from(axios.post(`${api}_data`, toFromData({ __action__: 'data', ...rest })));
+export const fetchTableData = ({ api, ...rest }) =>
 
 export const updateTableRow = (api, data) => {
     return from(axios.post(api, mappingDataFields({ __action__: 'update' }, data)));
