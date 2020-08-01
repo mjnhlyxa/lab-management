@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Modal } from 'antd';
+import { Modal, Divider, Space } from 'antd';
 // import Modal from 'react-bootstrap/Modal';
 import { Flex, Box, Button, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -68,10 +68,48 @@ import { hideModal } from 'actions/actions';
 //     margin: 0 20px;
 // `;
 
-export const AppModal = ({ show, onHide, id, allowHide = true, data, render, errorCode, ...rest }) => {
+const FooterBox = styled(Box)`
+    position: relative;
+`;
+const ActionBox = styled(Box)`
+    position: absolute;
+    right: 0;
+`;
+
+const Footer = ({ children }) => {
+    return (
+        <FooterBox height="5rem">
+            <Divider />
+            <ActionBox>
+                <Space>{children}</Space>
+            </ActionBox>
+        </FooterBox>
+    );
+};
+
+export const AppModal = ({
+    show,
+    title = 'Basic modal',
+    onHide,
+    id,
+    allowHide = true,
+    data,
+    render,
+    errorCode,
+    width = 416,
+    ...rest
+}) => {
     const cache = useRef({});
     const { t } = useTranslation();
-    const RenderedComponent = render;
+    const [Render, setRender] = useState(render);
+
+    useEffect(() => {
+        if (show) {
+            setRender(render);
+            return;
+        }
+        setRender(null);
+    }, [show, id]);
 
     const saveCache = useCallback((data) => {
         cache.current = { ...cache.current, ...data };
@@ -89,11 +127,25 @@ export const AppModal = ({ show, onHide, id, allowHide = true, data, render, err
         onHide();
     }, []);
 
+    const getModalBody = () => {
+        if (Render) {
+            return (
+                <Render
+                    Footer={Footer}
+                    onHide={onModalHide}
+                    data={data}
+                    saveCache={saveCache}
+                    getCache={getCache}
+                    t={t}
+                />
+            );
+        }
+        return null;
+    };
+
     return (
-        <Modal id={id} title="Basic Modal" visible={show} onOk={hideModal} onCancel={hideModal}>
-            {RenderedComponent && (
-                <RenderedComponent onHide={onModalHide} data={data} saveCache={saveCache} getCache={getCache} t={t} />
-            )}
+        <Modal id={id} title={title} width={width} zIndex={1031} footer={null} visible={show} onOk={hideModal} onCancel={hideModal}>
+            {getModalBody()}
         </Modal>
     );
 };
@@ -101,7 +153,7 @@ export const AppModal = ({ show, onHide, id, allowHide = true, data, render, err
 const mapStateToProps = ({
     modalState: {
         show,
-        modal: { tracking, trackingLabel, id, allowHide, data, render, errorCode },
+        modal: { tracking, title, trackingLabel, id, allowHide, data, render, errorCode, width },
     },
 }) => ({
     show,
@@ -113,6 +165,8 @@ const mapStateToProps = ({
     errorCode,
     render,
     data,
+    title,
+    width,
 });
 
 const mapDispatchToProp = {

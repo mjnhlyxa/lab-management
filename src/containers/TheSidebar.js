@@ -77,6 +77,11 @@ const TheSidebar = ({ t, setSideBar }) => {
                     },
                     {
                         _tag: 'CSidebarNavItem',
+                        name: t('sideBar.menu.compound'),
+                        to: '/compound',
+                    },
+                    {
+                        _tag: 'CSidebarNavItem',
                         name: t('sideBar.menu.location'),
                         to: '/location',
                     },

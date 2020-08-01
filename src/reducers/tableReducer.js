@@ -1,5 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
+    ACTIVATE_TABLE,
+    DEACTIVATE_TABLE,
     FETCH_TABLE_DEFINITION,
     FETCH_TABLE_DEFINITION_SUCCESS,
     FETCH_TABLE_DEFINITION_FAILED,
@@ -31,6 +33,7 @@ import data from 'pages/Test/data.json';
 
 const initialState = {
     loading: false,
+    activeTable: {},
     structure: {},
     data: {},
     fetchDefinitionState: RESPONSE_STATE.WAITING,
@@ -42,6 +45,17 @@ const initialState = {
 };
 
 const actions = {
+    [ACTIVATE_TABLE]: ({activeTable, ...rest}, { payload }) => ({
+        ...rest,
+        activeTable: { ...activeTable, [payload]: true },
+    }),
+    [DEACTIVATE_TABLE]: ({ activeTable, ...rest }, { payload }) => {
+        delete activeTable[payload];
+        return {
+            ...rest,
+            activeTable: { ...activeTable },
+        };
+    },
     [FETCH_TABLE_DEFINITION]: (state) => ({
         ...state,
         loading: true,

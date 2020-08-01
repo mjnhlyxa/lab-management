@@ -1,5 +1,6 @@
-export const API_URL = 'https://test-webview-sa.herokuapp.com';
+// export const API_URL = 'https://test-webview-sa.herokuapp.com';
 // export const API_URL = 'http://myslim.nlsoft.vn';
+export const API_URL = 'http://cenlab.nlsoft.vn';
 
 export const FIELD_TYPE = {
     STRING: 0,
@@ -44,4 +45,5 @@ export const SORT_TYPE = {
 
 export const MODAL_ID = {
     CREATE_TABLE_DATA_MODAL: 'CREATE_TABLE_DATA_MODAL',
+    CHANGE_PASSWORD_MODAL: 'CHANGE_PASSWORD_MODAL',
 };

@@ -44,8 +44,7 @@ export const getAllUsers1 = () =>
 
 export const fetchTableDefinition = (api) => from(axios.post(api, toFromData({ __action__: 'define' })));
 
-export const fetchTableData = ({ api, ...rest }) =>
-    from(axios.post(api, toFromData({ __action__: 'data', ...rest })));
+export const fetchTableData = ({ api, ...rest }) => from(axios.post(api, toFromData({ __action__: 'data', ...rest })));
 
 export const updateTableRow = (api, data) => {
     return from(axios.post(api, mappingDataFields({ __action__: 'update' }, data)));
@@ -61,6 +60,8 @@ export const saveVisibleColumns = (api, data) => from(axios.post(api, toFromData
 
 export const sortColumn = (api, data) => from(axios.post(api, toFromData({ __action__: 'data', ...data })));
 
+export const changePassword = (api, data) => from(axios.post(api, mappingDataFields({ __action__: 'change' }, data)));
+
 export default {
     login,
     getUserDefinition,
@@ -73,4 +74,5 @@ export default {
     addTableRow,
     searchInTable,
     sortColumn,
+    changePassword
 };

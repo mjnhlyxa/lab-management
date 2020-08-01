@@ -89,11 +89,11 @@ export const SettingPopover = memo(({ structure, onChangeStructure, setVisibilit
     return (
         <Box>
             {options.length && <ListSelect items={options} selected={selectedOptions} onChange={onChangeSelection} />}
-            <Box>
+            <Space>
                 <Button onClick={applyChange}>{t('common.button.label.apply')}</Button>
                 <Button onClick={saveChange}>{t('common.button.label.save')}</Button>
                 <Button onClick={onClose}>{t('common.button.label.cancel')}</Button>
-            </Box>
+            </Space>
         </Box>
     );
 });
@@ -187,12 +187,13 @@ export const TableActions = memo(
                                 onSave={saveColumnsSetting}
                             />
                         }
-                        title={t('components.table.label.filteredBy')}
+                        title={t('components.table.label.showColumns')}
                         trigger="click"
                         visible={showPopover}
                         onVisibleChange={handlePopoverVisibleChange}
                         placement="leftTop"
-                        autoAdjustOverflow>
+                        autoAdjustOverflow
+                        overlayStyle={{ zIndex: 1032 }}>
                         <Button type="primary" icon={<FaCog />} />
                     </Popover>
                 </Space>

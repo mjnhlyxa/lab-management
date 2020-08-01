@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import Stack from 'utils/Stack';
-import { UPDATE_MODAL, SHOW_GENERIC_ERROR_MODAL, SHOW_MODAL, HIDE_MODAL } from 'actions/actionTypes';
+import { UPDATE_MODAL, SHOW_GENERIC_ERROR_MODAL, SHOW_MODAL, HIDE_MODAL, HIDE_ALL_MODAL } from 'actions/actionTypes';
 
 const initialState = {
     stack: new Stack(),
@@ -36,6 +36,13 @@ const actions = {
                       show: false,
                       stack: stack.pop(),
                   }),
+        };
+    },
+    [HIDE_ALL_MODAL]: ({ stack, ...rest }) => {
+        return {
+            ...rest,
+            show: false,
+            stack: stack.pop(stack.size()),
         };
     },
     [SHOW_GENERIC_ERROR_MODAL]: ({ stack, ...rest }, { payload: { id, errorCode } = {} }) => {

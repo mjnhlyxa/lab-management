@@ -19,13 +19,15 @@ import {
     addTableRow,
     showModal,
     sortByColumn,
+    activateTable,
+    deactivateTable,
 } from 'actions/actions';
 import Input from 'components/input/Input';
 import { IconButton } from 'components/button/Button';
 import ListSelect from 'components/input/ListSelect';
 import Selectbox from 'components/input/Selectbox';
 import TableActions from 'components/table/TableActions';
-import TalbeLoadingSkeleton from 'components/table/TalbeLoadingSkeleton';
+import TalbeLoadingSkeleton from 'components/skeleton/TableSkeleton';
 import { FIELD_TYPE, MODAL_ID, RESPONSE_STATE, SORT_TYPE } from 'utils/constants';
 import { TextFilter, ListFilter } from 'components/table/columnFilters';
 import { useTranslation } from 'react-i18next';
@@ -201,7 +203,7 @@ const EditRowBtn = memo(({ editing, onEdit, onCancel, onSubmit }) => {
     );
 });
 
-const searchIdInList = (list, id) => {
+const searchIdInList = (list = [], id) => {
     const item = list.find((item) => item[0] === id) || [];
     const [, text] = item;
     return {
@@ -290,6 +292,7 @@ export const Table = ({
     updateTableRow,
     deleteTableRow,
     loading,
+    activeTable,
     structure: structureFromProps,
     data: dataFromProps,
     fetchDefinitionState,
@@ -299,8 +302,12 @@ export const Table = ({
     searchState,
     searchInTable,
     deleteDataState,
+    activateTable,
+    deactivateTable,
     showModal,
     sortByColumn,
+    customColumns = [],
+    ...rest
 }) => {
     const [structure, setStructure] = useState(structureFromProps[id]);
     const [data, setData] = useState(dataFromProps[id]);
@@ -315,6 +322,8 @@ export const Table = ({
 
     useEffect(() => {
         fetchTableDefinition({ api, id });
+        activateTable(id);
+        return () => deactivateTable(id)
     }, []);
 
     useEffect(() => {
@@ -351,7 +360,7 @@ export const Table = ({
     }, [updateDataState, addDataState, deleteDataState]);
 
     const initColumns = () => {
-        const cols = [...getSelectionColumn(), ...getColumns(), ...getActionColumn()];
+        const cols = [...getSelectionColumn(), ...getColumns(), ...getActionColumn(), ...getCustomColumns()];
         setColumns(cols);
     };
 
@@ -384,6 +393,8 @@ export const Table = ({
             {
                 id: 'action',
                 name: '',
+                width: '7rem',
+                center: true,
                 sortable: false,
                 cell: (row) => {
                     const { id } = row;
@@ -414,6 +425,7 @@ export const Table = ({
         fields.forEach(({ type, name, caption, sortable, choices, listName, editable, show, listValues }) => {
             const isMultichoices = Boolean(listName && choices);
             const isRawData = listValues && listValues.length > 0;
+            const needMappingData = Boolean(listName);
             const list = get(data, 'list', {})[listName];
             if (!show) {
                 return;
@@ -458,6 +470,9 @@ export const Table = ({
                     if (isRawData) {
                         return <Text>{searchIdInList(listValues, value).text}</Text>;
                     }
+                    if (needMappingData) {
+                        return <Text>{searchIdInList(list, value).text}</Text>;
+                    }
                     if (isMultichoices) {
                         return (
                             <Flex flexDirection="column" p={2}>
@@ -474,6 +489,21 @@ export const Table = ({
                     }
                     return <Text>{value}</Text>;
                 },
+            });
+        });
+        return columns;
+    };
+
+    const getCustomColumns = () => {
+        // customColumns
+        const columns = [];
+        customColumns.forEach(({ id = Math.random(), name = '', center = false, customCell }) => {
+            columns.push({
+                id,
+                name,
+                center,
+                sortable: false,
+                cell: customCell,
             });
         });
         return columns;
@@ -592,7 +622,7 @@ export const Table = ({
         fetchTableData({ id, api, pageSize, pageIndex });
     };
 
-    if (loading) {
+    if (loading && activeTable[id]) {
         return <TalbeLoadingSkeleton />;
     }
 
@@ -629,6 +659,7 @@ export const Table = ({
                 customStyles={customStyles}
                 fixedHeader
                 fixedHeaderScrollHeight="30rem"
+                {...rest}
             />
         );
     }
@@ -647,10 +678,12 @@ const mapStateToProps = ({
         addDataState,
         searchState,
         deleteDataState,
+        activeTable,
     },
 }) => {
     return {
         loading,
+        activeTable,
         structure,
         data,
         fetchDefinitionState,
@@ -670,6 +703,8 @@ const mapDispatchToProps = {
     searchInTable,
     showModal,
     sortByColumn,
+    activateTable,
+    deactivateTable,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(memo(Table));

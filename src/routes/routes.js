@@ -11,6 +11,7 @@ const UserManagement = React.lazy(() => import('pages/users/UserManagement'));
 const RoleManagement = React.lazy(() => import('pages/roles/RoleManagement'));
 const LocationManagement = React.lazy(() => import('pages/locations/LocationManagement'));
 const LaboratoryManagement = React.lazy(() => import('pages/labs/LaboratoryManagement'));
+const CompoundManagement = React.lazy(() => import('pages/compound/CompoundManagement'));
 
 const routes = [
     { path: '/', exact: true, name: 'Home' },
@@ -20,6 +21,7 @@ const routes = [
     { path: '/roles', exact: true, name: 'Roles Management', component: RoleManagement },
     { path: '/laboratoryMngt', exact: true, name: 'Locations Management', component: LaboratoryManagement },
     { path: '/location', exact: true, name: 'Locations Management', component: LocationManagement },
+    { path: '/compound', exact: true, name: 'Compound Management', component: CompoundManagement },
 ];
 
 export const Routing = () => (

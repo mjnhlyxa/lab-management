@@ -6,7 +6,8 @@
                 "to": "To",
                 "apply": "Apply",
                 "save": "Save",
-                "cancel": "Cancel"
+                "cancel": "Cancel",
+                "submit": "Submit"
             }
         }
     },
@@ -20,7 +21,8 @@
             "userMgnt": "User Management",
             "user": "Users",
             "role": "Roles",
-            "location": "Locations"
+            "location": "Locations",
+            "compound": "Compound"
         }
     },
     "settings": {
@@ -35,12 +37,21 @@
         "table": {
             "label": {
                 "filteredBy": "Filtered by:",
-                "filterBy": "Filter by"
+                "filterBy": "Filter by",
+                "showColumns": "Select columns to show:"
             }
         }
     },
     "userManagement": {
-        "title": "User management"
+        "title": "User management",
+        "label": {
+            "changePassword": "Change password",
+            "username": "Username: ",
+            "password": "Password: ",
+            "confirmPassword": "Confirm password: ",
+            "enterPassword": "Enter password",
+            "enterConfirmPw": "Enter password confirmation"
+        }
     },
     "roleManagement": {
         "permission": {
@@ -107,5 +118,9 @@
             "name": "Unit",
             "title": "Unit management"
         }
+    },
+    "compound": {
+        "name": "Compound",
+        "title": "Compound management"
     }
 }

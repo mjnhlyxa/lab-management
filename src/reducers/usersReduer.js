@@ -7,6 +7,9 @@ import {
     GET_ALL_USERS,
     GET_ALL_USERS_SUCCESS,
     GET_ALL_USERS_FAILED,
+    CHANGE_PASSWORD,
+    CHANGE_PASSWORD_SUCCESS,
+    CHANGE_PASSWORD_FAILED,
 } from 'actions/actionTypes';
 import { RESPONSE_STATE } from 'utils/constants';
 
@@ -16,6 +19,7 @@ const initialState = {
     definition: undefined,
     getAllUsersState: RESPONSE_STATE.WAITING,
     users: undefined,
+    changePasswordState: RESPONSE_STATE.WAITING,
 };
 
 const actions = {
@@ -50,6 +54,18 @@ const actions = {
         loading: false,
         getAllUsersState: RESPONSE_STATE.FAILED,
         users: undefined,
+    }),
+    [CHANGE_PASSWORD]: (state) => ({
+        ...state,
+        changePasswordState: RESPONSE_STATE.WAITING,
+    }),
+    [CHANGE_PASSWORD_SUCCESS]: (state) => ({
+        ...state,
+        changePasswordState: RESPONSE_STATE.SUCCESSS,
+    }),
+    [CHANGE_PASSWORD_FAILED]: (state) => ({
+        ...state,
+        changePasswordState: RESPONSE_STATE.FAILED,
     }),
 };
 
